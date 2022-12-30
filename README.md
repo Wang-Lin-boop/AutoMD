@@ -57,10 +57,15 @@ cp -r ff/* ${VIPARR_FFPATH}/
 Molecule Dictionary
 ====
 _You can retrieve your small molecule in the following database, obtaion the residue name corresponding to your small molecule, and check that this residue name is present in the template library._  
-### 1. Charmm Small Molecule Library (CSML)
+```
+grep ": {$" $VIPARR_FFPATH/*/templates | awk -F: '{print $1,$2}' |  sed 's/\/templates//g' | awk -F/ '{print $NF}' > VIPARR_Dictionary.index
+grep '<your residue name>' VIPARR_Dictionary.index
+```
+
+#### 1. Charmm Small Molecule Library (CSML)
 [Charmm-GUI CSML](https://charmm-gui.org/?doc=archive&lib=csml)
 
-### 2. Amber Lipid, DNA, RNA and others
+#### 2. Amber Lipid, DNA, RNA and others
 [Amber Lipid 17](https://ambermd.org/AmberModels_lipids.php)
 [Amber Force Fields for DNA, RNA, and others](https://ambermd.org/AmberModels.php)
 [AMBER parameter database](http://amber.manchester.ac.uk/)
