@@ -28,7 +28,7 @@ pip install msys-1.7.337-cp38-cp38-manylinux2014_x86_64.whl
 pip install viparr-4.7.35-cp38-cp38-manylinux2014_x86_64.whl
 echo "export viparr=${PWD}/schrodinger.ve/bin" >> ~/.bashrc
 ```
-*   Then, clone the public Viparr parameters from D.E. Shaw Research's GitHub repository, and set the environment variable. 
+*   Then, clone the public viparr parameters, and set the environment variable.  
 ```
 git clone git://github.com/DEShawResearch/viparr-ffpublic.git
 echo "export VIPARR_FFPATH=${PWD}/viparr-ffpublic/ff" >> ~/.bashrc
