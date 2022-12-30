@@ -51,7 +51,7 @@ source ~/.bashrc
 ```
 Copy the mreged Amber force field to `${VIPARR_FFPATH}`.
 ```
-cp -r ff/aa.amber.19SBmisc ${VIPARR_FFPATH}/
+cp -r ff/* ${VIPARR_FFPATH}/
 ```
 
 Usage
