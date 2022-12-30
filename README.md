@@ -32,7 +32,7 @@ pip install viparr-4.7.35-cp38-cp38-manylinux2014_x86_64.whl
 echo "export viparr=${PWD}/schrodinger.ve/bin" >> ~/.bashrc
 ```
 
-### 3. Download the force field library for Viparr.  
+### 3. Download the force field library for viparr.  
 
 Then, clone the public Viparr parameters from D.E. Shaw Research's GitHub repository, and set the environment variable. 
 ```
