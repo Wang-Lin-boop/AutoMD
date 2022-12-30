@@ -5,27 +5,27 @@ Installtion
 ----
 ### 1. Install the Desmond package.  
 
-Firstly, download the academic edition of [Desmond package](https://www.deshawresearch.com/resources.html) and install it on you HPC or PC. Of course, you can install the [SCHRODINGER package](https://www.schrodinger.com/downloads/releases) instead the academic edition of Desmond. Then, set the environment variable `$Desmond` to the installtion path of Desmond.  e.g. ```export Desmond=/public/home/wanglin3/software/DS21```.   
+    *   Firstly, download the academic edition of [Desmond package](https://www.deshawresearch.com/resources.html) and install it on you HPC or PC. Of course, you can install the [SCHRODINGER package](https://www.schrodinger.com/downloads/releases) instead the academic edition of Desmond. Then, set the environment variable `$Desmond` to the installtion path of Desmond.  e.g. ```export Desmond=/public/home/wanglin3/software/DS21```.   
 
-You can change the path to the installtion path of Desmond or SCHRODINGER, and run this command:  
+    *   You can change the path to the installtion path of Desmond or SCHRODINGER, and run this command:  
 ```
 echo "export Desmond=${PWD}/" >> ~/.bashrc
 ```
 
 ### 2. Install the viparr and msys by pip.  
 
-Firstly, download the msys and viparr.   
+    *   Firstly, download the msys and viparr.   
 ```
 wget https://github.com/DEShawResearch/viparr/releases/download/4.7.35/viparr-4.7.35-cp38-cp38-manylinux2014_x86_64.whl
 wget https://github.com/DEShawResearch/msys/releases/download/1.7.337/msys-1.7.337-cp38-cp38-manylinux2014_x86_64.whl
 ```
-Secondly, run these commands to create a new virtual environment for viparr.
+    *   Secondly, run these commands to create a new virtual environment for viparr.
 ```
 ${Desmond}/run schrodinger_virtualenv.py schrodinger.ve
 source schrodinger.ve/bin/activate
 pip install --upgrade pip
 ```
-Then, install the msys and viparr by Schrödinger pip.
+    *   Then, install the msys and viparr by Schrödinger pip.
 ```
 pip install msys-1.7.337-cp38-cp38-manylinux2014_x86_64.whl
 pip install viparr-4.7.35-cp38-cp38-manylinux2014_x86_64.whl
@@ -34,7 +34,7 @@ echo "export viparr=${PWD}/schrodinger.ve/bin" >> ~/.bashrc
 
 ### 3. Download the force field library for viparr.  
 
-Then, clone the public Viparr parameters from D.E. Shaw Research's GitHub repository, and set the environment variable. 
+    *   Then, clone the public Viparr parameters from D.E. Shaw Research's GitHub repository, and set the environment variable. 
 ```
 git clone git://github.com/DEShawResearch/viparr-ffpublic.git
 echo "export VIPARR_FFPATH=${PWD}/viparr-ffpublic/ff" >> ~/.bashrc
@@ -49,7 +49,7 @@ echo "alias AutoMD=${PWD}/AutoMD" >> ~/.bashrc
 chmod +x AutoMD
 source ~/.bashrc
 ```
-Copy the mreged Amber force field to `${VIPARR_FFPATH}`.
+    *   Copy the mreged Amber force field to `${VIPARR_FFPATH}`.
 ```
 cp -r ff/* ${VIPARR_FFPATH}/
 ```
@@ -124,12 +124,12 @@ grep '<your residue name>' VIPARR_Dictionary.index
 _Alternatively, you can also refer to the method [here for Amber](https://www.protocols.io/view/how-to-assign-amber-parameters-to-desmond-generate-bp2l6bqwkgqe/v1?step=5) or [here for Charmm](https://www.protocols.io/view/how-to-assign-charmm-parameters-to-desmond-generat-q26g78pr8lwz/v1?step=4) using self prepared Amber or Charmm small molecule force field files._   
 
 #### 1. (Recommended) Charmm Small Molecule Library (CSML)  
-[Charmm-GUI CSML](https://charmm-gui.org/?doc=archive&lib=csml): Small Molecules for Charmm Force fields  
+    *   [Charmm-GUI CSML](https://charmm-gui.org/?doc=archive&lib=csml): Small Molecules for Charmm Force fields  
 
 #### 2. Amber Lipid, DNA, RNA and others
-[Amber Lipid 17](https://ambermd.org/AmberModels_lipids.php)  
-[Amber Force Fields for DNA, RNA, and others](https://ambermd.org/AmberModels.php)  
-[AMBER parameter database](http://amber.manchester.ac.uk/):  Small Molecule parameters for Amber Force fields   
+    *   [Amber Lipid 17](https://ambermd.org/AmberModels_lipids.php)  
+    *   [Amber Force Fields for DNA, RNA, and others](https://ambermd.org/AmberModels.php)  
+    *   [AMBER parameter database](http://amber.manchester.ac.uk/):  Small Molecule parameters for Amber Force fields   
 
 
 Disclaimer
