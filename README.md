@@ -123,8 +123,6 @@ _You can retrieve your small molecule in the following database, obtaion the res
 grep ": {$" $VIPARR_FFPATH/*/templates | awk -F: '{print $1,$2}' |  sed 's/\/templates//g' | awk -F/ '{print $NF}' > VIPARR_Dictionary.index
 grep '<your residue name>' VIPARR_Dictionary.index
 ```
-_Alternatively, you can also refer to the method [here for Amber](https://www.protocols.io/view/how-to-assign-amber-parameters-to-desmond-generate-bp2l6bqwkgqe/v1?step=5) or [here for Charmm](https://www.protocols.io/view/how-to-assign-charmm-parameters-to-desmond-generat-q26g78pr8lwz/v1?step=4) using self prepared Amber or Charmm small molecule force field files._   
-
 #### 1. (Recommended) Charmm Small Molecule Library (CSML)  
 *   [Charmm-GUI CSML](https://charmm-gui.org/?doc=archive&lib=csml): Small Molecules for Charmm Force fields  
 
@@ -133,6 +131,7 @@ _Alternatively, you can also refer to the method [here for Amber](https://www.pr
 *   [Amber Force Fields for DNA, RNA, and others](https://ambermd.org/AmberModels.php)  
 *   [AMBER parameter database](http://amber.manchester.ac.uk/):  Small Molecule parameters for Amber Force fields   
 
+_Alternatively, you can also refer to the method [here for Amber](https://www.protocols.io/view/how-to-assign-amber-parameters-to-desmond-generate-bp2l6bqwkgqe/v1?step=5) or [here for Charmm](https://www.protocols.io/view/how-to-assign-charmm-parameters-to-desmond-generat-q26g78pr8lwz/v1?step=4) using self prepared Amber or Charmm small molecule force field files._   
 
 Disclaimer
 ----
