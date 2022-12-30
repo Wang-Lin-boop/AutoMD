@@ -9,7 +9,7 @@ Installtion
 ```
 echo "export Desmond=${PWD}/" >> ~/.bashrc
 ```
-*   Modifying the host file follow the official documentation. Please refer to [How do I configure my schrodinger.hosts file for Desmond GPU jobs?
+*   Configure the `${Desmond}/schrodinger.hosts` following this paper: [How do I configure my schrodinger.hosts file for Desmond GPU jobs?
 ](https://www.schrodinger.com/kb/1844).   
 ### 2. Install the viparr and msys by pip.  
 *   Firstly, download the msys and viparr.   
