@@ -63,12 +63,12 @@ grep '<your residue name>' VIPARR_Dictionary.index
 ```
 
 #### 1. Charmm Small Molecule Library (CSML)
-[Charmm-GUI CSML](https://charmm-gui.org/?doc=archive&lib=csml)
+[Charmm-GUI CSML](https://charmm-gui.org/?doc=archive&lib=csml): Small Molecules for Charmm Force fields  
 
 #### 2. Amber Lipid, DNA, RNA and others
-[Amber Lipid 17](https://ambermd.org/AmberModels_lipids.php)
-[Amber Force Fields for DNA, RNA, and others](https://ambermd.org/AmberModels.php)
-[AMBER parameter database](http://amber.manchester.ac.uk/)
+[Amber Lipid 17](https://ambermd.org/AmberModels_lipids.php)  
+[Amber Force Fields for DNA, RNA, and others](https://ambermd.org/AmberModels.php)  
+[AMBER parameter database](http://amber.manchester.ac.uk/):  Small Molecules for Amber Force fields   
 
 Usage
 ====
