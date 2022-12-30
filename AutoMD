@@ -479,7 +479,7 @@ function assign_viparr(){
         monovalent_ff="ions.amber1lm_iod.all"
     fi
     if [ ${ffid} == "Amber" ];then
-        viparr ${input_to_viparr} ${viparr_output} -f aa.amber.19SB -f aa.amber.ffncaa -f ${monovalent_ff} -f lipid.amber.lipid17 -f ions.amber2ff99.tip3p -f na.amber.bsc1 -f na.amber.tan2018 -f water.${water_type} --reorder-ids 
+        viparr ${input_to_viparr} ${viparr_output} -f aa.amber.19SBmisc -f aa.amber.ffncaa -f ${monovalent_ff} -f lipid.amber.lipid17 -f ions.amber2ff99.tip3p -f na.amber.bsc1 -f na.amber.tan2018 -f water.${water_type} --reorder-ids 
     elif [ ${ffid} == "DES-Amber" ];then
         viparr ${input_to_viparr} ${viparr_output} -f aa.DES-Amber_pe3.2 -f dna.DES-Amber_pe3.2 -f rna.DES-Amber_pe3.2 -f water.${water_type} -f aa.amber.phosaa10 -f aa.amber.ffncaa -f aa.amber.ffptm -f ${monovalent_ff} -f lipid.amber.lipid17 -f ions.amber2ff99.tip3p --reorder-ids 
     elif [ ${ffid} == "Charmm" ];then
