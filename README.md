@@ -52,7 +52,7 @@ chmod +x AutoMD
 
 Usage
 ====
-
+```
 Input parameter:  
   -i    Use a file name (Multiple files are wrapped in "", and split by ' ') "*.mae" or "*.cms" ;  
             or regular expression to represent your input file, default is *.mae.  
@@ -96,8 +96,9 @@ Simulation control parameter:
         This value is coupled with the recording interval for the trajectory and the simulation time:  
         the number of frames times the trajectory recording interval is the total simulation time.  
         If you adjust the number of frames, the recording interval will be modified.  
-
+```
 Example:  
+```
 1) MD for cytoplasmic protein-ligand complex:  
 AutoMD -i "*.mae" -S INC -P "chain.name A" -L "res.ptype UNK" -F "OPLS_2005"  
 2) MD for plasma protein-protein complex:  
@@ -106,7 +107,7 @@ AutoMD -i "*.mae" -S OUC -F "DES-Amber"
 AutoMD -i "*.mae" -S "SPC:Cl:0.15-K-Cl+0.02-Mg2-Cl" -F Amber  
 4) MD for membrane protein, need to prior place membrane in Meastro.  
 AutoMD -i "*.mae" -S OUC -l "POPC" -r "Membrane" -F "Charmm"  
-
+```  
 
 Disclaimer
 ====
