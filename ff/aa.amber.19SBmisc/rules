@@ -1,0 +1,37 @@
+{
+    "info" : [
+        "amber ff19SB protein forcefield",
+        "Tian et al. (2020) J. Chem. Theory Comput. 16, 628-552",
+        "Amber phosphorylated amino acids",
+        "Homeyer et al. (2006) J. Mol. Model. 12:281-289",
+        "Steinbrecher et al. (2012) J. Chem. Theo. Comput. 8:4405-4412",
+        "Parameter sets obtained from AmberTools v20",
+        "Amber protein parameters for 32 common post-translational modifications",
+        "Khoury et al. (2014) ACS Synthetic Biology  DOI: 10.1021/sb400168u",
+        "Khoury et al  (2013) J. Chem. Theory Comput. 9 (12) 5653-5674",
+        "Parameters obtained from http://selene.princeton.edu/FFPTM/files/ffptm.zip"
+    ], 
+    "vdw_func" : "lj12_6_sig_epsilon", 
+    "vdw_comb_rule" : "arithmetic/geometric", 
+    "exclusions" : 4, 
+    "es_scale" : [
+        0.0,
+        0.0,
+        0.8333
+    ], 
+    "lj_scale" : [
+        0.0,
+        0.0,
+        0.5
+    ], 
+    "plugins" : [
+        "exclusions",
+        "mass",
+        "bonds",
+        "angles",
+        "vdw1",
+        "propers",
+        "impropers",
+        "cmap"
+    ]
+}

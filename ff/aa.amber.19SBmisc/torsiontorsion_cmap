@@ -1,0 +1,18 @@
+[
+   { "type" : "* N XC_01 C N XC_01 C *",  "params" : { "cmapid" : 1 },  "memo" : "Gly CMAP" },
+   { "type" : "* N XC_02 C N XC_02 C *",  "params" : { "cmapid" : 2 },  "memo" : "Ala CMAP" },
+   { "type" : "* N XC_03 C N XC_03 C *",  "params" : { "cmapid" : 3 },  "memo" : "Ser CMAP" },
+   { "type" : "* N XC_04 C N XC_04 C *",  "params" : { "cmapid" : 4 },  "memo" : "Thr CMAP" },
+   { "type" : "* N XC_05 C N XC_05 C *",  "params" : { "cmapid" : 5 },  "memo" : "Val CMAP" },
+   { "type" : "* N XC_06 C N XC_06 C *",  "params" : { "cmapid" : 6 },  "memo" : "Asn CMAP" },
+   { "type" : "* N XC_07 C N XC_07 C *",  "params" : { "cmapid" : 7 },  "memo" : "Asp CMAP" },
+   { "type" : "* N XC_08 C N XC_08 C *",  "params" : { "cmapid" : 8 },  "memo" : "Glu CMAP" },
+   { "type" : "* N XC_09 C N XC_09 C *",  "params" : { "cmapid" : 9 },  "memo" : "Arg CMAP" },
+   { "type" : "* N XC_10 C N XC_10 C *",  "params" : { "cmapid" : 10 },  "memo" : "Lys CMAP" },
+   { "type" : "* N XC_11 C N XC_11 C *",  "params" : { "cmapid" : 11 },  "memo" : "Leu CMAP" },
+   { "type" : "* N XC_12 C N XC_12 C *",  "params" : { "cmapid" : 12 },  "memo" : "PRO CMAP" },
+   { "type" : "* N XC_13 C N XC_13 C *",  "params" : { "cmapid" : 13 },  "memo" : "GLN CMAP" },
+   { "type" : "* N XC_14 C N XC_14 C *",  "params" : { "cmapid" : 14 },  "memo" : "CYS CMAP" },
+   { "type" : "* N XC_15 C N XC_15 C *",  "params" : { "cmapid" : 15 },  "memo" : "GLH CMAP" },
+   { "type" : "* N XC_16 C N XC_16 C *",  "params" : { "cmapid" : 16 },  "memo" : "ASH CMAP" }
+]
