@@ -118,11 +118,7 @@ AutoMD -i "*.mae" -S OUC -l "POPC" -r "Membrane" -F "Charmm"
 
 Molecule Dictionary
 ----
-_You can retrieve your small molecule in the following database, obtaion the residue name corresponding to your small molecule, and check that this residue name is present in the templates of some kind of force field. **And then, make sure specify the same ff encompassing this residue in AutoMD when you run the MD simulatuons.** Note that, in AutoMD, the -F Charmm ff is combined by aa.charmm.c36m, misc.charmm.all36, carb.charmm.c36, ethers.charmm.c35, ions.charmm36, lipid.charmm.c36 and na.charmm.c36, the -F Amber ff is combined by aa.amber.19SBmisc, aa.amber.ffncaa, lipid.amber.lipid17, ions.amber1lm_iod.all, ions.amber2ff99.tip3p, na.amber.bsc1 and na.amber.tan2018, the -F DES-Amber is combined by aa.DES-Amber_pe3.2, dna.DES-Amber_pe3.2, rna.DES-Amber_pe3.2 and other force fields in -F Amber._    
-```
-grep ": {$" $VIPARR_FFPATH/*/templates | awk -F: '{print $1,$2}' |  sed 's/\/templates//g' | awk -F/ '{print $NF}' > VIPARR_Dictionary.index
-grep '<your residue name>' VIPARR_Dictionary.index
-```
+_You can retrieve your small molecule in the following database, obtaion the residue name corresponding to your small molecule, and check that this residue name is present in the templates of some kind of force field._    
 #### 1. (Recommended) Charmm Small Molecule Library (CSML)  
 *   [Charmm-GUI CSML](https://charmm-gui.org/?doc=archive&lib=csml): Small Molecules for Charmm Force fields  
 
@@ -130,6 +126,13 @@ grep '<your residue name>' VIPARR_Dictionary.index
 *   [Amber Lipid 17](https://ambermd.org/AmberModels_lipids.php)  
 *   [Amber Force Fields for DNA, RNA, and others](https://ambermd.org/AmberModels.php)  
 *   [AMBER parameter database](http://amber.manchester.ac.uk/):  Small Molecule parameters for Amber Force fields   
+
+```
+grep ": {$" $VIPARR_FFPATH/*/templates | awk -F: '{print $1,$2}' |  sed 's/\/templates//g' | awk -F/ '{print $NF}' > VIPARR_Dictionary.index
+grep '<your residue name>' VIPARR_Dictionary.index
+```
+
+_**And then, make sure specify the same ff encompassing this residue in AutoMD when you run the MD simulatuons.** Note that, in AutoMD, the -F Charmm ff is combined by aa.charmm.c36m, misc.charmm.all36, carb.charmm.c36, ethers.charmm.c35, ions.charmm36, lipid.charmm.c36 and na.charmm.c36, the -F Amber ff is combined by aa.amber.19SBmisc, aa.amber.ffncaa, lipid.amber.lipid17, ions.amber1lm_iod.all, ions.amber2ff99.tip3p, na.amber.bsc1 and na.amber.tan2018, the -F DES-Amber is combined by aa.DES-Amber_pe3.2, dna.DES-Amber_pe3.2, rna.DES-Amber_pe3.2 and other force fields in -F Amber._ 
 
 _Alternatively, you can also refer to the method [here for Amber](https://www.protocols.io/view/how-to-assign-amber-parameters-to-desmond-generate-bp2l6bqwkgqe/v1?step=5) or [here for Charmm](https://www.protocols.io/view/how-to-assign-charmm-parameters-to-desmond-generat-q26g78pr8lwz/v1?step=4) using self prepared Amber or Charmm small molecule force field files._   
 
