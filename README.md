@@ -53,7 +53,6 @@ cp -r ff/* ${VIPARR_FFPATH}/
 Usage
 ----
 __Options:__  
-```
 *   Input parameter:  
 ```
   -i    Use a file name (Multiple files are wrapped in "", and split by ' ') "*.mae" or "*.cms" ;  
