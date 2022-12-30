@@ -54,11 +54,13 @@ Usage
 ----
 __Options:__  
 ```
-Input parameter:  
+*   Input parameter:  
+```
   -i    Use a file name (Multiple files are wrapped in "", and split by ' ') "*.mae" or "*.cms" ;  
             or regular expression to represent your input file, default is *.mae.  
-
-System Builder parameter:  
+```
+*   System Builder parameter:  
+```
   -S    System Build Mode: <INC>  
         INC: System in cell, salt buffer is 0.15M KCl, water is SPC. Add K to neutralize system.  
         OUC: System out of cell, salt buffer is 0.15M NaCl, water is SPC. Add Na to neutralize system.    
@@ -80,8 +82,9 @@ System Builder parameter:
             OPLS_2005, S-OPLS are recommended to receptor-ligand systems.  
             Amber, Charmm, DES-Amber are recommended to other systems. Use -O to show more details.  
             Use the "Custom" to load parameters from input .cms file.  
-
-Simulation control parameter:  
+```
+*   Simulation control parameter:  
+```
   -m    Enter the maximum simulation time for the Brownian motion simulation, in ps. <100>  
   -r    The relaxation protocol before MD, "Membrane" or "Solute". <Solute>  
   -e    The ensemble class in MD stage, "NPT", "NVT", "NPgT". <NPT>  
@@ -99,14 +102,20 @@ Simulation control parameter:
         If you adjust the number of frames, the recording interval will be modified.  
 ```
 __Example:__   
+  1) MD for cytoplasmic protein-ligand complex:  
 ```
-1) MD for cytoplasmic protein-ligand complex:  
 AutoMD -i "*.mae" -S INC -P "chain.name A" -L "res.ptype UNK" -F "OPLS_2005"  
-2) MD for plasma protein-protein complex:  
+```
+  2) MD for plasma protein-protein complex:  
+```
 AutoMD -i "*.mae" -S OUC -F "DES-Amber"  
-3) MD for DNA/RNA-protein complex:  
+```
+  3) MD for DNA/RNA-protein complex:  
+```
 AutoMD -i "*.mae" -S "SPC:Cl:0.15-K-Cl+0.02-Mg2-Cl" -F Amber  
-4) MD for membrane protein, need to prior place membrane in Meastro.  
+```
+  4) MD for membrane protein, need to prior place membrane in Meastro.  
+```
 AutoMD -i "*.mae" -S OUC -l "POPC" -r "Membrane" -F "Charmm"  
 ```  
 
