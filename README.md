@@ -52,6 +52,7 @@ chmod +x AutoMD
 
 Usage
 ====
+__Options:__  
 ```
 Input parameter:  
   -i    Use a file name (Multiple files are wrapped in "", and split by ' ') "*.mae" or "*.cms" ;  
@@ -97,7 +98,7 @@ Simulation control parameter:
         the number of frames times the trajectory recording interval is the total simulation time.  
         If you adjust the number of frames, the recording interval will be modified.  
 ```
-Example:  
+__Example:__   
 ```
 1) MD for cytoplasmic protein-ligand complex:  
 AutoMD -i "*.mae" -S INC -P "chain.name A" -L "res.ptype UNK" -F "OPLS_2005"  
