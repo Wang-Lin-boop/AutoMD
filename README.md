@@ -116,5 +116,5 @@ AutoMD -i "*.mae" -S OUC -l "POPC" -r "Membrane" -F "Charmm"
 
 Disclaimer
 ====
-This script was developed to speed up my own work, and I put this script here for convenience for sharing to some people who need it. Discussion with me is welcome if you also wish to use it and have some problems, but I do not guarantee that you will solve it. Of note, this script was developed based on a series of software from the [D. E. Shaw Research](https://github.com/DEShawResearch), this repository declare no competing interest.     
+_This script was developed to speed up my own work, and I put this script here for convenience for sharing to some people who need it. Discussion with me is welcome if you also wish to use it and have some problems, but I do not guarantee that you will solve it. Of note, this script was developed based on a series of software from the [D. E. Shaw Research](https://github.com/DEShawResearch), this repository declare no competing interest._    
 
