@@ -2,7 +2,7 @@
 Fast to molecular dynamics simulation. 
 
 Installtion
-==== 
+----
 ### 1. Install the Desmond package.  
 
 Firstly, download the academic edition of [Desmond package](https://www.deshawresearch.com/resources.html) and install it on you HPC or PC. Of course, you can install the [SCHRODINGER package](https://www.schrodinger.com/downloads/releases) instead the academic edition of Desmond. Then, set the environment variable `$Desmond` to the installtion path of Desmond.  e.g. ```export Desmond=/public/home/wanglin3/software/DS21```.   
@@ -55,7 +55,7 @@ cp -r ff/* ${VIPARR_FFPATH}/
 ```
 
 Molecule Dictionary
-====
+----
 _You can retrieve your small molecule in the following database, obtaion the residue name corresponding to your small molecule, and check that this residue name is present in the template library._  
 ```
 grep ": {$" $VIPARR_FFPATH/*/templates | awk -F: '{print $1,$2}' |  sed 's/\/templates//g' | awk -F/ '{print $NF}' > VIPARR_Dictionary.index
@@ -72,7 +72,7 @@ _Alternatively, you can also refer to the method [here for Amber](https://www.pr
 [AMBER parameter database](http://amber.manchester.ac.uk/):  Small Molecule parameters for Amber Force fields   
 
 Usage
-====
+----
 __Options:__  
 ```
 Input parameter:  
@@ -132,6 +132,6 @@ AutoMD -i "*.mae" -S OUC -l "POPC" -r "Membrane" -F "Charmm"
 ```  
 
 Disclaimer
-====
+----
 _This script was developed to speed up my own work, and I put this script here for convenience for sharing to some people who need it. Discussion with me is welcome if you also wish to use it and have some problems, but I do not guarantee that you will solve it. Of note, this script was developed based on a series of software from the [D. E. Shaw Research](https://github.com/DEShawResearch), this repository declare no competing interest._    
 
