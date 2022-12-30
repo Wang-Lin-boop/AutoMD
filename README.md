@@ -4,16 +4,13 @@ Fast to molecular dynamics simulation.
 Installtion
 ----
 ### 1. Install the Desmond package.  
-
     *   Firstly, download the academic edition of [Desmond package](https://www.deshawresearch.com/resources.html) and install it on you HPC or PC. Of course, you can install the [SCHRODINGER package](https://www.schrodinger.com/downloads/releases) instead the academic edition of Desmond. Then, set the environment variable `$Desmond` to the installtion path of Desmond.  e.g. ```export Desmond=/public/home/wanglin3/software/DS21```.   
-
     *   You can change the path to the installtion path of Desmond or SCHRODINGER, and run this command:  
 ```
 echo "export Desmond=${PWD}/" >> ~/.bashrc
 ```
 
 ### 2. Install the viparr and msys by pip.  
-
     *   Firstly, download the msys and viparr.   
 ```
 wget https://github.com/DEShawResearch/viparr/releases/download/4.7.35/viparr-4.7.35-cp38-cp38-manylinux2014_x86_64.whl
@@ -33,7 +30,6 @@ echo "export viparr=${PWD}/schrodinger.ve/bin" >> ~/.bashrc
 ```
 
 ### 3. Download the force field library for viparr.  
-
     *   Then, clone the public Viparr parameters from D.E. Shaw Research's GitHub repository, and set the environment variable. 
 ```
 git clone git://github.com/DEShawResearch/viparr-ffpublic.git
@@ -41,7 +37,7 @@ echo "export VIPARR_FFPATH=${PWD}/viparr-ffpublic/ff" >> ~/.bashrc
 ```
 
 ### 4. Download AutoMD and additional force fields.
-
+    *   Download AutoMD and set the environment variable.
 ```
 git clone https://github.com/Wang-Lin-boop/AutoMD
 cd AutoMD
