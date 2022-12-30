@@ -47,6 +47,11 @@ git clone https://github.com/Wang-Lin-boop/AutoMD
 cd AutoMD
 echo "alias AutoMD=${PWD}/AutoMD" >> ~/.bashrc
 chmod +x AutoMD
+source ~/.bashrc
+```
+Copy the mreged Amber force field to `${VIPARR_FFPATH}`.
+```
+cp -r ff/aa.amber.19SBmisc ${VIPARR_FFPATH}/
 ```
 
 Usage
