@@ -3,16 +3,16 @@ Fast to molecular dynamics simulation.
 
 Installtion
 ==== 
-### 1. Install the Desmond academic edition.  
+### 1. Install the Desmond package.  
 
-Firstly, download the linux version of [Desmond package](https://www.deshawresearch.com/resources.html) and install it on you HPC or PC. Of course, you can install the [SCHRODINGER package](https://www.schrodinger.com/downloads/releases) instead the academic edition of Desmond. Then, set the environment variable `$Desmond` to the installtion path of Desmond.  e.g. ```export Desmond=/public/home/wanglin3/software/DS21```.   
+Firstly, download the academic edition of [Desmond package](https://www.deshawresearch.com/resources.html) and install it on you HPC or PC. Of course, you can install the [SCHRODINGER package](https://www.schrodinger.com/downloads/releases) instead the academic edition of Desmond. Then, set the environment variable `$Desmond` to the installtion path of Desmond.  e.g. ```export Desmond=/public/home/wanglin3/software/DS21```.   
 
 You can change the path to the installtion path of Desmond or SCHRODINGER, and run this command:  
 ```
 echo "export Desmond=${PWD}/" >> ~/.bashrc
 ```
 
-### 2. Install the Viparr by pip.  
+### 2. Install the viparr and msys by pip.  
 
 Firstly, download the msys and viparr.   
 ```
