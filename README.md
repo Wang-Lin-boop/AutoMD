@@ -40,7 +40,7 @@ git clone git://github.com/DEShawResearch/viparr-ffpublic.git
 echo "export VIPARR_FFPATH=${PWD}/viparr-ffpublic/ff" >> ~/.bashrc
 ```
 
-### 4. Download AutoMD and set environment variable.
+### 4. Download AutoMD and additional force fields.
 
 ```
 git clone https://github.com/Wang-Lin-boop/AutoMD
