@@ -56,7 +56,7 @@ __Options:__
   -i    Use a file name (Multiple files are wrapped in "", and split by ' ') "*.mae" or "*.cms" ;  
             or regular expression to represent your input file, default is *.mae.  
 ```
-*   System Builder parameter:  
+*   Solution Builder parameter: INC or OUC, this often depends on where the protein is located. 
 ```
   -S    System Build Mode: <INC>  
         INC: System in cell, salt buffer is 0.15M KCl, water is SPC. Add K to neutralize system.  
@@ -66,19 +66,46 @@ __Options:__
                 for positive_ion: Na, Li, K, Rb, Cs, Fe2, Fe3, Mg2, Ca2, Zn2 are predefined.  
                 for nagative_ion: F, Cl, Br, I are predefined.  
                 for water: SPC, TIP3P, TIP4P, TIP5P, DMSO, METHANOL are predefined.  
+```
+*   Membrane builder parameter: Typically, POPC membranes for eukaryotes, whereas POPE membrane for prokaryotes.
+```
   -l    Lipid type for membrane box. Use this option will build membrane box. <None>  
             Lipid types: POPC, POPE, DPPC, DMPC.  
+```
+*   Simulation box builder parameters: box shape and size.
+```
   -b    Define a boxshape for your systems. <cubic>  
             box types: dodecahedron_hexagon, cubic, orthorhombic, triclinic  
   -s    Define a boxsize for your systems.  <15.0>  
             for dodecahedron_hexagon and cubic, defulat is 15.0;  
             for orthorhombic or triclinic box, defulat is [15.0 15.0 15.0];  
             If you want use Orthorhombic or Triclinic box, your parameter should be like "15.0 15.0 15.0"  
+```
+*   Force fields parameters: 
+```
   -R    Redistribute the mass of heavy atoms to bonded hydrogen atoms to slow-down high frequency motions.  
   -F    Define a force field to build your systems. <OPLS_2005>  
             OPLS_2005, S-OPLS are recommended to receptor-ligand systems.  
-            Amber, Charmm, DES-Amber are recommended to other systems. Use -O to show more details.  
+            Amber, Charmm, DES-Amber are recommended to other systems.
             Use the "Custom" to load parameters from input .cms file.  
+            
+The current force fields support in AutoMD:
+    S-OPLS:
+        The force fields in Schrödinger packages, recommended to ligand-protein complex.
+    OPLS_2005:
+        The default force field of Desmond package.
+    Amber:
+        Recommended to protein, DNA, RNA, lipid and other systems.
+        Amber-ff19SB for protein, Amber-ffncaa for non-canonical aa, Amber-ffptm for
+        post-translational modifications, amber1jc ion parameters adapt with spce,
+        tip3p or tip4pew, Amber-bsc1 for DNA, Amber-tan2018 for RNA.
+    Charmm:
+        Recommended to protein, DNA, RNA, lipid, carbohydrate and other systems.
+        Charmm36m for protein, Charmm36 for carbohydrate, ions, lipid and nucleic acid.
+    DES-Amber:
+        Recommended to protein-protein complex.
+        DES-Amber for protein-protein complex.
+
 ```
 *   Simulation control parameter:  
 ```
