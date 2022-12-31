@@ -127,6 +127,7 @@ _You can retrieve your small molecule in the following database, obtaion the res
 *   [Amber Force Fields for DNA, RNA, and others](https://ambermd.org/AmberModels.php)  
 *   [AMBER parameter database](http://amber.manchester.ac.uk/):  Small Molecule parameters for Amber Force fields   
 
+Use the following commands to find the force field which contained your small molecule:   
 ```
 grep ": {$" $VIPARR_FFPATH/*/templates | awk -F: '{print $1,$2}' |  sed 's/\/templates//g' | awk -F/ '{print $NF}' > VIPARR_Dictionary.index
 grep '<your residue name>' VIPARR_Dictionary.index
