@@ -1,5 +1,5 @@
 # AutoMD
-Fast to molecular dynamics simulation. 
+Fast to molecular dynamics simulation.  [中文文档](https://zhuanlan.zhihu.com/p/595698129)
 
 Installtion
 ----
