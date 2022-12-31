@@ -640,7 +640,7 @@ fi
 
 function forcefield_info(){
 cat<<HELP
-The current force fields support in plmd:
+The current force fields support in AutoMD:
     S-OPLS: 
         The force fields in Schrödinger packages, recommended to ligand-protein complex.
     OPLS_2005: 
