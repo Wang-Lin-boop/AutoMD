@@ -166,5 +166,5 @@ _Alternatively, you can also refer to the method [here for Amber](https://www.pr
 
 Disclaimer
 ----
-_This script was developed to speed up my own work, and I put this script here for convenience for sharing to some people who need it. Discussion with me is welcome if you also wish to use it and have some problems, but I do not guarantee that you will solve it. Of note, this script was developed based on a series of software from the [D. E. Shaw Research](https://github.com/DEShawResearch), this repository declare no competing interest._    
+_This script was developed to speed up my own work, and I put this script here for convenience for sharing to some people who need it. Discussion with me is welcome if you also wish to use it and have some problems, but I do not guarantee that you will solve it. Of note, this script was developed based on a series of software from the [D. E. Shaw Research](https://github.com/DEShawResearch), all credits belong to D. E. Shaw Research. I declare no competing interest._    
 
