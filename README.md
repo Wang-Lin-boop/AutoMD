@@ -51,7 +51,7 @@ cp -r ff/* ${VIPARR_FFPATH}/
 Usage
 ----
 __Options:__  
-*   Input parameter:  
+*   Input parameter: Use Mae or CMS as input, that, MAE can contain pre-defined membrane locations.   
 ```
   -i    Use a file name (Multiple files are wrapped in "", and split by ' ') "*.mae" or "*.cms" ;  
             or regular expression to represent your input file, default is *.mae.  
