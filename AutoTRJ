@@ -1,0 +1,228 @@
+#!/bin/bash
+#########################################################################
+# AutoTRJ, Version 0.1.0 (plmd)
+# 2022, ShanghaiTech University, Wang Lin
+# Email: wanglin3@shanghaitech.edu.cn
+#########################################################################
+
+## Default
+export receptor_ASL="protein"
+export ligand_ASL="ligand"
+export Slice="None"
+export water_num=200
+export CPU_HOST="CPU"
+export NJOBS=30
+export Desmond=${Desmond}
+export Gromacs=${Gromacs}
+
+function help(){
+cat<<HELP
+The trajectory analysis script for AutoMD. Refer to: https://github.com/Wang-Lin-boop/AutoMD
+Usage: AutoTRJ [OPTION] <parameter>
+
+Required Options:
+  -i	The path to trajectory or regular expression for trajectories(will be merged). such as "*-md".
+  -J    Specify a basic jobname for this task, the basename of -i is recommended.
+  -M    The running mode for this analysis task. the <..> means some options.
+            APCluster_<n>: affinity propagation clustering, the <n> is the number of most populated clusters.
+            CHCluster_<n>_<cutoff>: centroid hierarchical clustering, the <cutoff> is the RMSD thethreshold.
+            LigandAPCluster_<n>: APCluster for ligand, require "-L" option.
+            LigandCHCluster_<n>_<cutoff>: CHCluster for ligand, require "-L" option.
+            Occupancy: calculates the occupancy of component 2 in trajectory, require "-L" option.
+            PPIContact: identifies interactions occurring between the components, require "-L" option.
+            FEL: analyze the free energy landscope (FEL) for CA atoms, and cluster the trajectories by FEL.
+            CCM: plot the cross-correlation matrix of the trajectory. 
+            SiteMap_<n>: running SiteMap on all farmes of the trajectory, the <n> is the number of sites.
+            PocketMonitor: monitor the ligand binding pocket on the trajectory, require "-L" option. 
+            MMGBSA: running MM-GBSA on the trajectory, require "-L" option. 
+            BFactor: calculate atom B-factors from trajectory.
+            ConvertXTC: convert the trajectory to XTC format.
+        You can parallel the analysis task by "+", such as, "APCluster_5+PPIContact+MMGBSA".
+
+Trajectories Processing Options:
+  -T    Slice trajectories when analyzed, if more than one trajectories given by -i, this slice will applied 
+        to all of them. The default is None. Such as "100:1000:1". <START:END:STEP>
+  -A    Align the trajectory to a reference structure, given in ".mae" format. 
+  -C    Set a ASL to clean the subsystem from trajectory, such as "-C not water", not recommended to MMGBSA.
+  -P    Parch waters far away from the ASL, such as "-P solute".
+  -w    Number of retained water molecules for parch (-P) stage. <${water_num}>
+
+Analysis Range Options:
+  -R    The ASL of component 1 to be centered. <${receptor_ASL}>
+  -L    The ASL of component 2 to be analyzed. <${ligand_ASL}>
+
+Job Control Options:
+  -H    HOST of CPU queue, default is ${CPU_HOST}.
+  -N    CPU number for per analysis task. <${NJOBS}>
+  -G    Path to the bin of Gromacs. <${Gromacs}>
+  -D	Path to the installation directory of Desmond. <${Desmond}>
+
+Thank you for your using, If you found any question, Please contact wanglin3@shanghaitech.edu.cn.
+HELP
+}
+
+################################
+## Check Desmond and hostfile ##
+################################
+if [ -d ${Desmond}/ ];then
+  if [ "${Desmond}" == "" ];then
+    echo "The environment variable \${Desmond} not found. Please check the Desmond path in your ~/.bashrc."
+    exit
+  fi
+  if [ "`grep -c ${CPU_HOST} ${Desmond}/schrodinger.hosts`" == "0" ];then
+    echo ${CPU_HOST} "Hostfile not found."
+    exit
+  fi
+else
+  echo "Desmond not found. Please check your Desmond Path."
+  exit
+fi
+
+################################
+## parse the options ##
+################################
+while getopts ":hi:J:M:T:R:A:C:L:H:G:D:N:P:w:" opt
+do
+  case $opt in
+    h)
+        help
+        exit;;
+    i)
+        export input="$OPTARG";;
+    J)
+        export job_name="$OPTARG";;
+    M)
+        export running_tasks=$OPTARG;;
+    T)
+        export Slice=$OPTARG;;
+    A)
+        export ref_mae_to_align=$OPTARG;;
+    C)
+        export extract_ASL=$OPTARG;;
+    P)
+        export dew_ASL=$OPTARG;;
+    w)
+        export water_num=$OPTARG;;
+    R)
+        export receptor_ASL=$OPTARG;;
+    L)
+        export ligand_ASL=$OPTARG;;
+    H)
+        export CPU_HOST=$OPTARG;;
+    N)
+        export NJOBS=$OPTARG;;
+    G)
+        export Gromacs=$OPTARG;;
+    D)
+        export Desmond=$OPTARG;;
+    ?)
+      echo ""
+      echo "Error: Do not use undefined options. Try -h."
+      echo ""
+      exit;;
+  esac
+done
+
+####################################
+## mergre and center trajectories ##
+####################################
+if [ ${Slice} != "None" ];then
+    export slice_cmd="-s \"${Slice}\""
+fi
+export trajectories_num=0
+if ls -d ${input} >/dev/null 2>&1;then
+  echo "These trajectories will be processed:"
+  for i in `ls -d ${input}`; do echo $i; ((trajectories_num+=1)) ;done
+else
+  echo "Error: no ${input} trajectories not found, please check it."
+  exit
+fi
+if [ ${trajectories_num} -gt 1 ];then
+    input_cms=`ls ${input} | grep "in.cms" | head -n 1`
+    $SCHRODINGER/run trj_merge.py ${input_cms%%-in.cms}/${input_cms} ${input}/*trj -output-trajectory-format dtr -concat 0 10 ${slice_cmd} -o ${job_name}_merge 
+    ${Desmond}/run trj_center.py -t "${job_name}_merge_trj" -asl "${receptor_ASL}" "${job_name}_merge-out.cms" "${job_name}_TRJIN"
+else
+    ${Desmond}/run trj_center.py -t "${input}/${input}_trj" -asl "${receptor_ASL}" ${slice_cmd} "${input}/${input}-out.cms" "${job_name}_TRJIN"
+fi
+export current_trajectory=`readlink -f ${job_name}_TRJIN_trj/`
+export current_cms=`readlink -f ${job_name}_TRJIN-out.cms`
+
+######################
+## clean trajectory ##
+######################
+if [ ! -z ${extract_ASL} ];then
+    ${Desmond}/run trj_extract_subsystem.py -t ${current_trajectory} -asl "${extract_ASL}" ${current_cms} "${job_name}_CLEAN"
+    export current_trajectory=`readlink -f ${job_name}_CLEAN_trj/`
+    export current_cms=`readlink -f ${job_name}_CLEAN-out.cms`
+elif [ ! -z ${dew_ASL} ];then
+    ${Desmond}/run trj_parch.py -align-asl "${receptor_ASL}" -dew-asl ${dew_ASL} -n ${water_num} ${current_cms} ${current_trajectory} "${job_name}_PARCH" 
+    export current_trajectory=`readlink -f ${job_name}_PARCH_trj/`
+    export current_cms=`readlink -f ${job_name}_PARCH-out.cms`
+fi
+
+######################
+## align trajectory ##
+######################
+if [ ! -z ${ref_mae_to_align} ];then
+    ${Desmond}/run trj_align.py -ref-mae ${ref_mae_to_align} -asl "${receptor_ASL}" ${current_cms} ${current_trajectory} "${job_name}_ALIGN"
+    export current_trajectory=`readlink -f ${job_name}_ALIGN_trj/`
+    export current_cms=`readlink -f ${job_name}_ALIGN-out.cms`
+fi
+
+########################
+## analyze trajectory ##
+########################
+export task_array=(${running_tasks//+/ })
+for task in ${task_array[@]};do
+    export running_mode_array=(${task//_/ })
+    export running_mode=${running_mode_array[0]}
+    echo "NOTE: running ${running_mode} ......"
+    if [ ${running_mode} == "APCluster" ];then # APCluster_<n>
+        ${Desmond}/run trj_cluster.py -rmsd-asl "${receptor_ASL}" -fit-asl "${receptor_ASL}" -n ${running_mode_array[1]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}"
+    elif [ ${running_mode} == "LigandAPCluster" ];then
+        ${Desmond}/run trj_cluster.py -rmsd-asl "${ligand_ASL}" -fit-asl "${receptor_ASL}" -n ${running_mode_array[1]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}"
+    elif [ ${running_mode} == "CHCluster" ];then # CHCluster_<n>_<cutoff>
+        ${Desmond}/run trj_cluster.py -rmsd-asl "${receptor_ASL}" -fit-asl "${receptor_ASL}" -n ${running_mode_array[1]} -cutoff ${running_mode_array[2]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}" 
+    elif [ ${running_mode} == "LigandCHCluster" ];then
+        ${Desmond}/run trj_cluster.py -rmsd-asl "${ligand_ASL}" -fit-asl "${receptor_ASL}" -n ${running_mode_array[1]} -cutoff ${running_mode_array[2]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}" 
+    elif [ ${running_mode} == "Occupancy" ];then
+        if [ -z ${ref_mae_to_align} ];then
+            ${Desmond}/run trj_occupancy.py -HOST ${CPU_HOST} -map-asl "${ligand_ASL}" -fit-asl "${receptor_ASL}" -ref-mae ${ref_mae_to_align} -grid-length 50 "${current_cms}" "${current_trajectory}" "${job_name}_${task}"
+        else
+            ${Desmond}/run trj_occupancy.py -HOST ${CPU_HOST} -map-asl "${ligand_ASL}" -fit-asl "${receptor_ASL}" -grid-length 50 "${current_cms}" "${current_trajectory}" "${job_name}_${task}"
+        fi
+    elif [ ${running_mode} == "PPIContact" ];then
+        ${Desmond}/run analyze_trajectory_ppi.py "${current_cms}" "${job_name}_${task}_raw.csv" "${receptor_ASL}" "${ligand_ASL}" 
+        echo "Residue1,Residue2,Frames,Type" > "${job_name}_${task}_OUT.csv"
+        tail -n +2 "${job_name}_${task}_raw.csv" | awk '{FS=","}''{OFS=","}''{print $10,$11,$12,"salt-bridge"}' >> "${job_name}_${task}_OUT.csv"
+        tail -n +2 "${job_name}_${task}_raw.csv" | awk '{FS=","}''{OFS=","}''{print $4,$5,$6,"hbond_ss"}' >> "${job_name}_${task}_OUT.csv"
+        tail -n +2 "${job_name}_${task}_raw.csv" | awk '{FS=","}''{OFS=","}''{print $7,$8,$9,"hbond_bb"}' >> "${job_name}_${task}_OUT.csv"
+        tail -n +2 "${job_name}_${task}_raw.csv" | awk '{FS=","}''{OFS=","}''{print $13,$14,$15,"hbond_sb"}' >> "${job_name}_${task}_OUT.csv"
+        tail -n +2 "${job_name}_${task}_raw.csv" | awk '{FS=","}''{OFS=","}''{print $16,$17,$18,"hbond_bs"}' >> "${job_name}_${task}_OUT.csv"
+        tail -n +2 "${job_name}_${task}_raw.csv" | awk '{FS=","}''{OFS=","}''{print $19,$20,$21,"pi-pi"}' >> "${job_name}_${task}_OUT.csv"
+        tail -n +2 "${job_name}_${task}_raw.csv" | awk '{FS=","}''{OFS=","}''{print $1,$2,$3,"pi-cat"}' >> "${job_name}_${task}_OUT.csv"
+    elif [ ${running_mode} == "FEL" ];then
+        ${Desmond}/run trj_essential_dynamics.py -asl "(${receptor_ASL}) OR (${ligand_ASL})" -projection "${current_cms}" "${current_trajectory}" "${job_name}_PCA"
+        tail -n +2 "${job_name}_PCA_proj.csv" | awk -F, '{print $1,$2,$3}' > "${job_name}_PC12.xvg"
+        mkdir -p "${job_name}_PCA"
+        mv ${job_name}_PCA_* ${job_name}_PCA/
+        ${Gromacs}/gmx sham -tsham 310 -nlevels 100 -f "${job_name}_PC12.xvg" -ls ${job_name}_gibbs.xpm -g ${job_name}_gibbs.log -lsh ${job_name}_enthalpy.xpm -lss ${job_name}_entropy.xpm
+        python $(dirname $(readlink -f $0))/xpm2png.py -f ${job_name}_gibbs.xpm -show no -ip yes -o "${job_name}_gibbs_FEL.png"
+    elif [ ${running_mode} == "CCM" ];then
+        ${Desmond}/run trj_essential_dynamics.py -asl "(${receptor_ASL}) OR (${ligand_ASL})" -projection -cross-correlation "${current_cms}" "${current_trajectory}" "${job_name}_CCM"
+    elif [ ${running_mode} == "BFactor" ];then
+        ${Desmond}/run trajectory_bfactors.py -asl "(${receptor_ASL}) OR (${ligand_ASL})" -byatom "${current_cms}" "${job_name}_${task}.mae"
+    elif [ ${running_mode} == "SiteMap" ];then
+        ${Desmond}/run trajectory_binding_site_volumes.py -HOST ${CPU_HOST} -superimpose -protein_asl "${receptor_ASL}" -sitemap_all "all" -sitemap_options "maxsites:${running_mode_array[1]}" -omae "${job_name}_${task}_OUT.mae" -ocsv "${job_name}_${task}_OUT.csv" "${current_cms}" trajectory
+    elif [ ${running_mode} == "PocketMonitor" ];then
+        ${Desmond}/run trajectory_binding_site_volumes.py -HOST ${CPU_HOST} -superimpose -protein_asl "${receptor_ASL}" -sitemap_ligand_asl "${ligand_ASL}" -sitemap_options "sitebox:8" -omae "${job_name}_${task}_OUT.mae" -ocsv "${job_name}_${task}_OUT.csv" "${current_cms}" trajectory
+    elif [ ${running_mode} == "MMGBSA" ];then
+        ${Desmond}/run thermal_mmgbsa.py -lig_asl "${ligand_ASL}" -membrane -HOST ${CPU_HOST} -NJOBS ${NJOBS} -frozen -j "${job_name}_${task}" "${current_cms}"
+    elif [ ${running_mode} == "ConvertXTC" ];then
+        ${Desmond}/run dtr2xtc.py "${current_trajectory}" "${job_name}_${task}"
+    else
+        echo "Error: unvaild running mode ${task}."
+        echo "NOTE: we will skip the ${task}."
+    fi
+done
+
