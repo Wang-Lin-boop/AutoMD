@@ -9,6 +9,7 @@
 export receptor_ASL="protein"
 export ligand_ASL="ligand"
 export Slice="None"
+export parch="no"
 export water_num=200
 export membrane_treatment=""
 export CPU_HOST="CPU"
@@ -22,42 +23,42 @@ The trajectory analysis script for AutoMD. Refer to: https://github.com/Wang-Lin
 Usage: AutoTRJ [OPTION] <parameter>
 
 Required Options:
-  -i	The path to trajectory or regular expression for trajectories(will be merged). such as "*-md".
-  -J    Specify a basic jobname for this task, the basename of -i is recommended.
-  -M    The running mode for this analysis task. the <..> means some options.
-            APCluster_<n>: affinity propagation clustering, the <n> is the number of most populated clusters.
-            CHCluster_<n>_<cutoff>: centroid hierarchical clustering, the <cutoff> is the RMSD thethreshold.
-            LigandAPCluster_<n>: APCluster for ligand, require "-L" option.
-            LigandCHCluster_<n>_<cutoff>: CHCluster for ligand, require "-L" option.
-            Occupancy: calculates the occupancy of component 2 in trajectory, require "-L" option.
-            PPIContact: identifies interactions occurring between the components, require "-L" option.
-            FEL: analyze the free energy landscope (FEL) for CA atoms, and cluster the trajectories by FEL.
-            CCM: plot the cross-correlation matrix of the trajectory. 
-            SiteMap_<n>: running SiteMap on all farmes of the trajectory, the <n> is the number of sites.
-            PocketMonitor: monitor the ligand binding pocket on the trajectory, require "-L" option. 
-            MMGBSA: running MM-GBSA on the trajectory, require "-L" option. 
-            BFactor: calculate atom B-factors from trajectory.
-            ConvertXTC: convert the trajectory to XTC format.
-        You can parallel the analysis task by "+", such as, "APCluster_5+PPIContact+MMGBSA".
-
-Trajectories Processing Options:
-  -T    Slice trajectories when analyzed, if more than one trajectories given by -i, this slice will applied 
-        to all of them. The default is None. Such as "100:1000:1". <START:END:STEP>
-  -A    Align the trajectory to a reference structure, given in ".mae" format. 
-  -C    Set a ASL to clean the subsystem from trajectory, such as "-C not water", not recommended to MMGBSA.
-  -P    Parch waters far away from the ASL, such as "-P solute".
-  -w    Number of retained water molecules for parch (-P) stage. <${water_num}>
-  -m    Treat the explicit membrane to implicit membrane during MM-GBSA calculation. 
+  -i <string>	The path to trajectory or regular expression for trajectories(will be merged). such as "*-md".
+  -J <string>   Specify a basic jobname for this task, the basename of -i is recommended.
+  -M <string>   The running mode for this analysis task. the <..> means some options.
+                APCluster_<n>: affinity propagation clustering, the <n> is the number of most populated clusters.
+                CHCluster_<n>_<cutoff>: centroid hierarchical clustering, the <cutoff> is the RMSD thethreshold.
+                LigandAPCluster_<n>: APCluster for ligand, require "-L" option.
+                LigandCHCluster_<n>_<cutoff>: CHCluster for ligand, require "-L" option.
+                Occupancy: calculates the occupancy of component 2 in trajectory, require "-L" option.
+                PPIContact: identifies interactions occurring between the components, require "-L" option.
+                FEL: analyze the free energy landscope (FEL) for CA atoms, and cluster the trajectories by FEL.
+                CCM: plot the cross-correlation matrix of the trajectory. 
+                SiteMap_<n>: running SiteMap on all farmes of the trajectory, the <n> is the number of sites.
+                PocketMonitor: monitor the ligand binding pocket on the trajectory, require "-L" option. 
+                MMGBSA: running MM-GBSA on the trajectory, require "-L" option. 
+                BFactor: calculate atom B-factors from trajectory.
+                ConvertXTC: convert the trajectory to XTC format.
+            You can parallel the analysis task by "+", such as, "APCluster_5+PPIContact+MMGBSA".
 
 Analysis Range Options:
-  -R    The ASL of component 1 to be centered. <${receptor_ASL}>
-  -L    The ASL of component 2 to be analyzed. <${ligand_ASL}>
+  -R <ASL>      The ASL of component 1 to be centered. <${receptor_ASL}>
+  -L <ASL>      The ASL of component 2 to be analyzed. <${ligand_ASL}>
+
+Trajectories Processing Options:
+  -T <string>   Slice trajectories when analyzed, if more than one trajectories given by -i, this slice will applied 
+                to all of them. The default is None. Such as "100:1000:1". <START:END:STEP>
+  -A <file>     Align the trajectory to a reference structure, given in ".mae" format. 
+  -C <ASL>      Set a ASL to clean the subsystem from trajectory, such as -C "not solvent", not recommended to MMGBSA.
+  -P            Parch waters far away from the component 2.
+  -w <int>      Number of retained water molecules for parch (-P) stage. <${water_num}>
+  -m            Treat the explicit membrane to implicit membrane during MM-GBSA calculation. 
 
 Job Control Options:
-  -H    HOST of CPU queue, default is ${CPU_HOST}.
-  -N    CPU number for per analysis task. <${NJOBS}>
-  -G    Path to the bin of Gromacs. <${Gromacs}>
-  -D	Path to the installation directory of Desmond. <${Desmond}>
+  -H <string>   HOST of CPU queue, default is ${CPU_HOST}.
+  -N <int>      CPU number for per analysis task. <${NJOBS}>
+  -G <path>     Path to the bin of Gromacs. <${Gromacs}>
+  -D <path>	    Path to the installation directory of Desmond. <${Desmond}>
 
 Thank you for your using, If you found any question, Please contact wanglin3@shanghaitech.edu.cn.
 HELP
@@ -102,7 +103,7 @@ do
     C)
         export extract_ASL=$OPTARG;;
     P)
-        export dew_ASL=$OPTARG;;
+        export parch="yes";;
     w)
         export water_num=$OPTARG;;
     m)
@@ -134,22 +135,29 @@ if [ ${Slice} != "None" ];then
     export slice_cmd="-s \"${Slice}\""
 fi
 export trajectories_num=0
-if ls -d ${input} >/dev/null 2>&1;then
-  echo "These trajectories will be processed:"
-  for i in `ls -d ${input}`; do echo $i; ((trajectories_num+=1)) ;done
+if echo "${input}" | grep -q -E 'trj$' && [ -f ${input%%_trj}-out.cms ];then
+    echo "The ${input} looks like a AutoTRJ output trajectory."
+    echo "NOTE: Found the matched out cms is ${input%%_trj}-out.cms"
+    export current_trajectory=`readlink -f ${input}/`
+    export current_cms=`readlink -f ${input%%_trj}-out.cms`
 else
-  echo "Error: no ${input} trajectories not found, please check it."
-  exit
+    if ls -d ${input} >/dev/null 2>&1;then
+    echo "These trajectories will be processed:"
+    for i in `ls -d ${input}`; do echo $i; ((trajectories_num+=1)) ;done
+    else
+    echo "Error: no ${input} trajectories not found, please check it."
+    exit
+    fi
+    if [ ${trajectories_num} -gt 1 ];then
+        input_cms=`ls ${input} | grep "in.cms" | head -n 1`
+        $SCHRODINGER/run trj_merge.py ${input_cms%%-in.cms}/${input_cms} ${input}/*trj -output-trajectory-format dtr -concat 0 10 ${slice_cmd} -o ${job_name}_merge 
+        ${Desmond}/run trj_center.py -t "${job_name}_merge_trj" -asl "${receptor_ASL}" "${job_name}_merge-out.cms" "${job_name}_TRJIN"
+    else
+        ${Desmond}/run trj_center.py -t "${input}/${input}_trj" -asl "${receptor_ASL}" ${slice_cmd} "${input}/${input}-out.cms" "${job_name}_TRJIN"
+    fi
+    export current_trajectory=`readlink -f ${job_name}_TRJIN_trj/`
+    export current_cms=`readlink -f ${job_name}_TRJIN-out.cms`
 fi
-if [ ${trajectories_num} -gt 1 ];then
-    input_cms=`ls ${input} | grep "in.cms" | head -n 1`
-    $SCHRODINGER/run trj_merge.py ${input_cms%%-in.cms}/${input_cms} ${input}/*trj -output-trajectory-format dtr -concat 0 10 ${slice_cmd} -o ${job_name}_merge 
-    ${Desmond}/run trj_center.py -t "${job_name}_merge_trj" -asl "${receptor_ASL}" "${job_name}_merge-out.cms" "${job_name}_TRJIN"
-else
-    ${Desmond}/run trj_center.py -t "${input}/${input}_trj" -asl "${receptor_ASL}" ${slice_cmd} "${input}/${input}-out.cms" "${job_name}_TRJIN"
-fi
-export current_trajectory=`readlink -f ${job_name}_TRJIN_trj/`
-export current_cms=`readlink -f ${job_name}_TRJIN-out.cms`
 
 ######################
 ## clean trajectory ##
@@ -158,8 +166,8 @@ if [[ ! -z ${extract_ASL} ]];then
     ${Desmond}/run trj_extract_subsystem.py -t ${current_trajectory} -asl "${extract_ASL}" ${current_cms} "${job_name}_CLEAN"
     export current_trajectory=`readlink -f ${job_name}_CLEAN_trj/`
     export current_cms=`readlink -f ${job_name}_CLEAN-out.cms`
-elif [[ ! -z ${dew_ASL} ]];then
-    ${Desmond}/run trj_parch.py -align-asl "${receptor_ASL}" -dew-asl ${dew_ASL} -n ${water_num} ${current_cms} ${current_trajectory} "${job_name}_PARCH" 
+elif [[ ${parch} == "yes" ]];then
+    ${Desmond}/run trj_parch.py -align-asl "${receptor_ASL}" -dew-asl "${ligand_ASL}" -n ${water_num} ${current_cms} ${current_trajectory} "${job_name}_PARCH" 
     export current_trajectory=`readlink -f ${job_name}_PARCH_trj/`
     export current_cms=`readlink -f ${job_name}_PARCH-out.cms`
 fi
