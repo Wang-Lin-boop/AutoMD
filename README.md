@@ -168,3 +168,9 @@ Disclaimer
 ----
 _This script was developed to speed up my own work, and I put this script here for convenience for sharing to some people who need it. Discussion with me is welcome if you also wish to use it and have some problems, but I do not guarantee that you will solve it. Of note, this script was developed based on a series of software from the [D. E. Shaw Research](https://github.com/DEShawResearch), all credit to D. E. Shaw Research. I declare no competing interest._    
 
+Acknowledgments
+---
+We would like to express our special thanks to the following individuals and organizations, whose contributions have been invaluable to our research:    
+*   Thilo Mast and Dmitry Lupyan for sharing their methods for using alternative force fields in Desmond, which provided us with a valuable foundation for our work;    
+*   D E Shaw Research for their significant contributions to the development and maintenance of the Desmond software, which has allowed us to leverage this powerful platform for our research.   
+
