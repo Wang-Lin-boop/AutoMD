@@ -9,9 +9,11 @@
 export receptor_ASL="protein"
 export ligand_ASL="ligand"
 export Slice="None"
+export split_trj=false
 export parch="no"
 export water_num=200
 export membrane_treatment=""
+export frist_frame_to_align=false
 export CPU_HOST="CPU"
 export NJOBS=30
 export Desmond=${Desmond}
@@ -32,9 +34,9 @@ Required Options:
                 LigandCHCluster_<n>_<cutoff>: CHCluster for ligand, require "-L" option.
                 Occupancy: calculates the occupancy of component 2 in trajectory, require "-L" option.
                 PPIContact: identifies interactions occurring between the components, require "-L" option.
-                FEL: analyze the free energy landscope (FEL) for CA atoms, and cluster the trajectories by FEL.
+                FEL: analyze the free energy landscape (FEL) for CA atoms, and cluster the trajectories by FEL.
                 CCM: plot the cross-correlation matrix of the trajectory. 
-                SiteMap_<n>: running SiteMap on all farmes of the trajectory, the <n> is the number of sites.
+                SiteMap_<n>: running SiteMap on all frames of the trajectory, the <n> is the number of sites.
                 PocketMonitor: monitor the ligand binding pocket on the trajectory, require "-L" option. 
                 MMGBSA: running MM-GBSA on the trajectory, require "-L" option. 
                 BFactor: calculate atom B-factors from trajectory.
@@ -46,10 +48,12 @@ Analysis Range Options:
   -L <ASL>      The ASL of component 2 to be analyzed. <${ligand_ASL}>
 
 Trajectories Processing Options:
-  -T <string>   Slice trajectories when analyzed, if more than one trajectories given by -i, this slice will applied 
-                to all of them. The default is None. Such as "100:1000:1". <START:END:STEP>
+  -T <string>   Slice trajectories when analyzed, if more than one trajectories given by -i, this slice will applied to all of them. The default is None. Such as "100:1000:1". <START:END:STEP>
+  -t <string>   Slice trajectories when calculating MM/GBSA, such as "100:1000:1". <START:END:STEP>
+  -c            During the clustering process, the frames of a trajectory are preserved for each cluster, while representative members are stored in the CMS files.
   -A <file>     Align the trajectory to a reference structure, given in ".mae" format. 
-  -C <ASL>      Set a ASL to clean the subsystem from trajectory, such as -C "not solvent", not recommended to MMGBSA.
+  -a            Align the trajectory to the frist frame. 
+  -C <ASL>      Set a ASL to clean the subsystem from trajectory, such as -C "not solvent".
   -P            Parch waters far away from the component 2.
   -w <int>      Number of retained water molecules for parch (-P) stage. <${water_num}>
   -m            Treat the explicit membrane to implicit membrane during MM-GBSA calculation. 
@@ -84,7 +88,7 @@ fi
 ################################
 ## parse the options ##
 ################################
-while getopts ":hi:J:M:T:R:A:C:L:H:G:D:N:P:w:m" opt
+while getopts ":hi:J:M:T:R:A:C:L:H:G:D:N:P:w:mat:c" opt
 do
   case $opt in
     h)
@@ -98,8 +102,14 @@ do
         export running_tasks=$OPTARG;;
     T)
         export Slice=$OPTARG;;
+    t)
+        export MMGBSA_Slice=$OPTARG;;
+    c)
+        export split_trj=true;;
     A)
         export ref_mae_to_align=$OPTARG;;
+    a)
+        export frist_frame_to_align=true;;
     C)
         export extract_ASL=$OPTARG;;
     P)
@@ -132,7 +142,7 @@ done
 ## mergre and center trajectories ##
 ####################################
 if [ ${Slice} != "None" ];then
-    export slice_cmd="-s \"${Slice}\""
+    export slice_cmd="-s ${Slice}"
 fi
 export trajectories_num=0
 if echo "${input}" | grep -q -E 'trj$' && [ -f ${input%%_trj}-out.cms ];then
@@ -179,6 +189,10 @@ if [ ! -z ${ref_mae_to_align} ];then
     ${Desmond}/run trj_align.py -ref-mae ${ref_mae_to_align} -asl "${receptor_ASL}" ${current_cms} ${current_trajectory} "${job_name}_ALIGN"
     export current_trajectory=`readlink -f ${job_name}_ALIGN_trj/`
     export current_cms=`readlink -f ${job_name}_ALIGN-out.cms`
+elif [ ${frist_frame_to_align} == "true" ];then
+    ${Desmond}/run trj_align.py -ref-frame 0 -asl "${receptor_ASL}" ${current_cms} ${current_trajectory} "${job_name}_ALIGN"
+    export current_trajectory=`readlink -f ${job_name}_ALIGN_trj/`
+    export current_cms=`readlink -f ${job_name}_ALIGN-out.cms`
 fi
 
 ########################
@@ -188,17 +202,20 @@ export task_array=(${running_tasks//+/ })
 for task in ${task_array[@]};do
     export running_mode_array=(${task//_/ })
     export running_mode=${running_mode_array[0]}
+    if [ ${split_trj} == true ]; then
+        export split_trj_cmd=" -split-trj "
+    fi
     echo "NOTE: running ${running_mode} ......"
     if [ ${running_mode} == "APCluster" ];then # APCluster_<n>
-        ${Desmond}/run trj_cluster.py -rmsd-asl "${receptor_ASL}" -fit-asl "${receptor_ASL}" -n ${running_mode_array[1]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}"
+        ${Desmond}/run trj_cluster.py -rmsd-asl "${receptor_ASL}" -fit-asl "${receptor_ASL}" ${split_trj_cmd} -n ${running_mode_array[1]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}"
     elif [ ${running_mode} == "LigandAPCluster" ];then
-        ${Desmond}/run trj_cluster.py -rmsd-asl "${ligand_ASL}" -fit-asl "${receptor_ASL}" -n ${running_mode_array[1]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}"
+        ${Desmond}/run trj_cluster.py -rmsd-asl "${ligand_ASL}" -fit-asl "${receptor_ASL}" ${split_trj_cmd} -n ${running_mode_array[1]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}"
     elif [ ${running_mode} == "CHCluster" ];then # CHCluster_<n>_<cutoff>
-        ${Desmond}/run trj_cluster.py -rmsd-asl "${receptor_ASL}" -fit-asl "${receptor_ASL}" -n ${running_mode_array[1]} -cutoff ${running_mode_array[2]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}" 
+        ${Desmond}/run trj_cluster.py -rmsd-asl "${receptor_ASL}" -fit-asl "${receptor_ASL}" ${split_trj_cmd} -n ${running_mode_array[1]} -cutoff ${running_mode_array[2]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}" 
     elif [ ${running_mode} == "LigandCHCluster" ];then
-        ${Desmond}/run trj_cluster.py -rmsd-asl "${ligand_ASL}" -fit-asl "${receptor_ASL}" -n ${running_mode_array[1]} -cutoff ${running_mode_array[2]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}" 
+        ${Desmond}/run trj_cluster.py -rmsd-asl "${ligand_ASL}" -fit-asl "${receptor_ASL}" ${split_trj_cmd} -n ${running_mode_array[1]} -cutoff ${running_mode_array[2]} -HOST ${CPU_HOST} -LOCAL -JOBNAME "${job_name}_${task}" "${current_cms}" "${current_trajectory}" "${job_name}_${task}" 
     elif [ ${running_mode} == "Occupancy" ];then
-        if [ -z ${ref_mae_to_align} ];then
+        if [ ! -z ${ref_mae_to_align} ];then
             ${Desmond}/run trj_occupancy.py -HOST ${CPU_HOST} -map-asl "${ligand_ASL}" -fit-asl "${receptor_ASL}" -ref-mae ${ref_mae_to_align} -grid-length 50 "${current_cms}" "${current_trajectory}" "${job_name}_${task}"
         else
             ${Desmond}/run trj_occupancy.py -HOST ${CPU_HOST} -map-asl "${ligand_ASL}" -fit-asl "${receptor_ASL}" -grid-length 50 "${current_cms}" "${current_trajectory}" "${job_name}_${task}"
@@ -219,10 +236,10 @@ for task in ${task_array[@]};do
         mkdir -p "${job_name}_PCA"
         mv ${job_name}_PCA_* ${job_name}_PCA/
         ${Gromacs}/gmx sham -tsham 310 -nlevels 100 -f "${job_name}_PC12.xvg" -ls ${job_name}_gibbs.xpm -g ${job_name}_gibbs.log -lsh ${job_name}_enthalpy.xpm -lss ${job_name}_entropy.xpm
-        if [ -f $(dirname $(readlink -f $0))/xpm2png.py ];then
-        python $(dirname $(readlink -f $0))/xpm2png.py -f ${job_name}_gibbs.xpm -show no -ip yes -o "${job_name}_gibbs_FEL.png"
+        if [ -f $(dirname $(readlink -f $0))/xpm2png.py ] && [ -f $(dirname $(readlink -f $0))/xpm_show.py ];then
+            python $(dirname $(readlink -f $0))/xpm_plot.py -f ${job_name}_gibbs.xpm -o "${job_name}_gibbs"
         else
-            echo "ERROR: the $(dirname $(readlink -f $0))/xpm2png.py not found, you can download it from https://github.com/CharlesHahn/DuIvy/blob/master/sources/xpm_show/xpm2png.py!"
+            echo "ERROR: the $(dirname $(readlink -f $0))/xpm_plot.py not found, you can download it from https://github.com/Wang-Lin-boop/AutoMD!"
             exit
         fi
     elif [ ${running_mode} == "CCM" ];then
@@ -234,7 +251,12 @@ for task in ${task_array[@]};do
     elif [ ${running_mode} == "PocketMonitor" ];then
         ${Desmond}/run trajectory_binding_site_volumes.py -HOST ${CPU_HOST} -superimpose -protein_asl "${receptor_ASL}" -sitemap_ligand_asl "${ligand_ASL}" -sitemap_options "sitebox:8" -omae "${job_name}_${task}_OUT.mae" -ocsv "${job_name}_${task}_OUT.csv" "${current_cms}" trajectory
     elif [ ${running_mode} == "MMGBSA" ];then
-        ${Desmond}/run thermal_mmgbsa.py -lig_asl "${ligand_ASL}" ${membrane_treatment} -HOST "${CPU_HOST}:${NJOBS}" -NJOBS ${NJOBS} -frozen -j "${job_name}_${task}" "${current_cms}"
+        if [[ ! -z ${MMGBSA_Slice} ]]; then
+            export MMGBSA_Slice_array=(${MMGBSA_Slice//:/ })
+            ${Desmond}/run thermal_mmgbsa.py -lig_asl "${ligand_ASL}" ${membrane_treatment} -start_frame ${MMGBSA_Slice_array[0]} -end_frame ${MMGBSA_Slice_array[1]} -step_size ${MMGBSA_Slice_array[2]} -HOST "${CPU_HOST}" -NJOBS ${NJOBS} -frozen -atom_asl "not ((${receptor_ASL}) OR (${ligand_ASL}))" -j "${job_name}_${task}" "${current_cms}"
+        else
+            ${Desmond}/run thermal_mmgbsa.py -lig_asl "${ligand_ASL}" ${membrane_treatment} -HOST "${CPU_HOST}" -NJOBS ${NJOBS} -frozen -atom_asl "not ((${receptor_ASL}) OR (${ligand_ASL}))" -j "${job_name}_${task}" "${current_cms}"
+        fi
     elif [ ${running_mode} == "ConvertXTC" ];then
         ${Desmond}/run dtr2xtc.py "${current_trajectory}" "${job_name}_${task}"
     else
@@ -242,4 +264,3 @@ for task in ${task_array[@]};do
         echo "NOTE: we will skip the ${task}."
     fi
 done
-
