@@ -30,7 +30,7 @@ echo "export viparr=${PWD}/schrodinger.ve/bin" >> ~/.bashrc
 ```
 *   Then, clone the public viparr parameters, and set the environment variable.  
 ```
-git clone git://github.com/DEShawResearch/viparr-ffpublic.git
+git clone https://github.com/DEShawResearch/viparr-ffpublic.git
 echo "export VIPARR_FFPATH=${PWD}/viparr-ffpublic/ff" >> ~/.bashrc
 ```
 
