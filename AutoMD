@@ -10,7 +10,7 @@ testlogic=false
 for line in $2
 do
 if [ "$1"x == "$line"x ];then
-  testlogic=true;break;fi
+  testlogic="true";break;fi
 done
 if [ "${testlogic}"x == "true"x ];then
   echo "Note: Parameter "$1" is vaild.";
@@ -413,10 +413,10 @@ function set_sys_build_msj(){
 function genenate_analysis_scripts(){
     extend_to_time=`echo "${mdtime} * 2.0"|bc`
 cat<<EXTEND > extend.sh
-${Desmond}/desmond -JOBNAME "${i%%.*}-${seed}-md" -HOST ${GPU_HOST} -restore ${i%%.*}-${seed}-md.cpt -in ${i%%.*}-${seed}-md-in.cms -cfg mdsim.last_time=${extend_to_time}
+${Desmond}/desmond -JOBNAME "${i%%.*}-${seed}-md-extend" -HOST ${GPU_HOST} -restore ${i%%.*}-${seed}-md.cpt -in ${i%%.*}-${seed}-md-in.cms -cfg mdsim.last_time=${extend_to_time}
 EXTEND
 cat<<RESUME > resume.sh
-${Desmond}/desmond -JOBNAME "${i%%.*}-${seed}-md" -HOST ${GPU_HOST} -restore ${i%%.*}-${seed}-md.cpt -in ${i%%.*}-${seed}-md-in.cms
+${Desmond}/desmond -JOBNAME "${i%%.*}-${seed}-md-resume" -HOST ${GPU_HOST} -restore ${i%%.*}-${seed}-md.cpt -in ${i%%.*}-${seed}-md-in.cms
 RESUME
 cat<<CLUSTER > cluster.sh
 ${Desmond}/run trj_cluster.py ${i%%.*}-${seed}-md-out.cms ${i%%.*}-${seed}-md_trj ${i%%.*}-${seed}_cluster -rmsd-asl "$1" -fit-asl "\$2" -n "\$3" -HOST ${CPU_HOST} -JOBNAME ${i%%.*}-${seed}_cluster
@@ -488,7 +488,7 @@ function assign_viparr(){
     fi 
     # --rename-residues , some residue name maybe longer than 4 
     # --ligand-selection "${VMD_ASL}" --rename-atoms 
-    # --ligand-files ligand.dms --match-ligand-bond-stereo --exhaustive-ligand-matching
+    # --ligand-files ligand.dms --match-ligand-bond-stereo --exhaustive-ligand-matching 
 }
 
 function set_md(){
@@ -901,7 +901,7 @@ MIN time: ${mintime} ps
 MD time: ${mdtime} ps
 temperature: ${temperature} K
 Repeat: ${num}
-Rondom numbers list: ${seedlist[@]}
+Random numbers list: ${seedlist[@]}
 
 OUT
 
