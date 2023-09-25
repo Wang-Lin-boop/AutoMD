@@ -1,8 +1,10 @@
 #!/bin/bash
 #########################################################################
-# AutoMD, Version 0.1.0 (plmd)
+# AutoMD, Version 0.1.6 (AutoMD)
 # 2022, ShanghaiTech University, Wang Lin
+# 2023, ShanghaiTech University, Hao Yang
 # Email: wanglin3@shanghaitech.edu.cn
+# URL: https://github.com/Wang-Lin-boop/AutoMD
 #########################################################################
 
 function checkparam(){
@@ -661,7 +663,8 @@ HELP
 
 function help(){
 cat<<HELP
-Usage: AutoMD [OPTION] <parameter>
+Easy to get started with molecular dynamics simulation. Refer to: https://github.com/Wang-Lin-boop/AutoMD
+Usage: AutoMD [OPTION] <parameter> 
 
 Example: 
 1) MD for cytoplasmic protein-ligand complex:
@@ -837,7 +840,7 @@ if [ ${num} -gt 3 ];then
         seedlist+=("$RANDOM");done
     fi
 elif [ "${num}" == "1" ];then
-        seedlist=(2007)
+        seedlist=("$RANDOM") # 2007
         echo "Your system will only perform 1 simulation."
 else
     echo "Your system will perform ${num} simulations at different random speeds."

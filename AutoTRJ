@@ -1,8 +1,10 @@
 #!/bin/bash
 #########################################################################
-# AutoTRJ, Version 0.1.0 (plmd)
+# AutoTRJ, Version 0.1.6 (AutoMD)
 # 2022, ShanghaiTech University, Wang Lin
+# 2023, ShanghaiTech University, Hao Yang
 # Email: wanglin3@shanghaitech.edu.cn
+# URL: https://github.com/Wang-Lin-boop/AutoMD
 #########################################################################
 
 ## Default
@@ -37,10 +39,22 @@ Required Options:
                 FEL: analyze the free energy landscape (FEL) for CA atoms, and cluster the trajectories by FEL.
                 CCM: plot the cross-correlation matrix of the trajectory. 
                 SiteMap_<n>: running SiteMap on all frames of the trajectory, the <n> is the number of sites.
-                PocketMonitor: monitor the ligand binding pocket on the trajectory, require "-L" option. 
-                MMGBSA: running MM-GBSA on the trajectory, require "-L" option. 
+                PocketMonitor: monitor the ligand binding pocket n the trajectory, require "-L" option. 
+                MMGBSA: run MM-GBSA on the trajectory, require "-L" option. 
                 BFactor: calculate atom B-factors from trajectory (receptor and ligand).
                 RMSF: calculate RMSF from trajectory (receptor).
+                DistanceMonitor_<res1_asl>_<res2_asl>_<mode>: 
+                    monitor the distance between two residues in the trajectory,
+                    the mode can be min or center for minimum distance or center of mass distance.
+                AngleMonitor_<atom1_num>_<atom2_num>_<atom3_num>: 
+                    monitor the angle between three atoms in the trajectory. 
+                DihedralMonitor_<atom1_num>_<atom2_num>_<atom3_num>_<atom4_num>: 
+                    monitor the dihedral angle between four atoms in the trajectory.
+                HbondMonitor_<ASL1>_<ASL2>: 
+                    monitor the hydrogen bond between two ASLs in the trajectory.
+                CustomFEL_<mode>: 
+                    analyze the free energy landscape (FEL),the mode can  be PCA, "RMSD:ASL1_RG:ASL2","RMSD:ASL1_DIS:ASL2,ASL3_dismode", 
+                    "RG:ASL1_DIS:ASL2,ASL3_dismode", "DIS:ASL1,ASL2_DIS:ASL3,ASL4_dismode", "RMSD:ASL1_RMSD:ASL2"
                 ConvertXTC: convert the trajectory to XTC format.
             You can parallel the analysis task by "+", such as, "APCluster_5+PPIContact+MMGBSA".
 
@@ -199,9 +213,9 @@ fi
 ########################
 ## analyze trajectory ##
 ########################
-export task_array=(${running_tasks//+/ })
-for task in ${task_array[@]};do
-    export running_mode_array=(${task//_/ })
+IFS='+' read -ra task_array <<< "$running_tasks"
+for task in "${task_array[@]}";do
+    IFS='_' read -ra running_mode_array <<< "$task"
     export running_mode=${running_mode_array[0]}
     if [ ${split_trj} == true ]; then
         export split_trj_cmd=" -split-trj "
@@ -262,8 +276,196 @@ for task in ${task_array[@]};do
         fi
     elif [ ${running_mode} == "ConvertXTC" ];then
         ${Desmond}/run dtr2xtc.py "${current_trajectory}" "${job_name}_${task}"
-    else
-        echo "Error: unvaild running mode ${task}."
-        echo "NOTE: we will skip the ${task}."
+
+    elif [ ${running_mode} == "DistanceMonitor" ];then 
+        #DistanceMonitor_<res1_asl>_<res2_asl>_<mode>
+        task_name=$(echo "$task" | sed 's/ /_/g')
+        ${Desmond}/run trajectory_asl_monitor.py "${current_cms}" "${job_name}_${task_name}" "${running_mode_array[1]}" "${running_mode_array[2]}"  "-report_"${running_mode_array[3]}"_dist" -distance 20
+
+    elif [ "$running_mode" == "AngleMonitor" ]; then
+        #AngleMonitor_<atom1_num>_<atom2_num>_<atom3_num>
+cat << st2 > analyse_Angle.st2
+Keywords = [
+{Angle = {
+a1 = ${running_mode_array[1]}
+a2 = ${running_mode_array[2]}
+a3 = ${running_mode_array[3]}
+}
+}
+]
+st2
+        $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_Angle.st2 analyse_Angle.st2
+        $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_Angle.st2 ${current_cms%%-out.cms}_Angle.csv
+    
+    elif [ "$running_mode" == "DihedralMonitor" ]; then
+cat << st2 > analyse_Dihedral.st2
+Keywords = [
+{Dihedral  ={
+a1 = ${running_mode_array[1]}
+a2 = ${running_mode_array[2]}
+a3 = ${running_mode_array[3]}
+a4 = ${running_mode_array[4]}
+}
+}
+]
+st2
+        $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_Dihedral.st2 analyse_Dihedral.st2
+        $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_Dihedral.st2 ${current_cms%%-out.cms}_Dihedral.csv
+    elif [ "$running_mode" == "HbondMonitor" ]; then
+
+cat << st2 > analyse_Hbond.st2
+Keywords = [
+{HBonds = {
+ASL1 = ${running_mode_array[1]}
+ASL2 = ${running_mode_array[2]}
+}
+}
+]
+st2
+        $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_Hbond.st2 analyse_Hbond.st2
+        $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_Hbond.st2 ${current_cms%%-out.cms}_Hbond.csv
+    elif [ "$running_mode" == "CustomFEL" ]; then
+        export FEL_mode=${running_mode_array[1]}
+        if [ "$FEL_mode" == "PCA" ]; then
+        ${Desmond}/run trj_essential_dynamics.py -asl "(${receptor_ASL}) OR (${ligand_ASL})" -projection "${current_cms}" "${current_trajectory}" "${job_name}_PCA"
+                tail -n +2 "${job_name}_PCA_proj.csv" | awk -F, '{print $1,$2,$3}' > "${job_name}_PC12.xvg"
+                mkdir -p "${job_name}_PCA"
+                mv ${job_name}_PCA_* ${job_name}_PCA/
+                ${Gromacs}/gmx sham -tsham 310 -nlevels 100 -f "${job_name}_PC12.xvg" -ls ${job_name}_gibbs.xpm -g ${job_name}_gibbs.log -lsh ${job_name}_enthalpy.xpm -lss ${job_name}_entropy.xpm -dist ${job_name}_ener.xvg  -histo  ${job_name}_edist.xvg  -bin  ${job_name}_bindex.ndx  -ls3  ${job_name}_gibbs3.pdb
+                if [ -f $(dirname $(readlink -f $0))/xpm_plot.py ];then
+                    python $(dirname $(readlink -f $0))/xpm_plot.py -f "${job_name}_gibbs.xpm" -o "${job_name}_gibbs"
+                else
+                    echo "ERROR: the $(dirname $(readlink -f $0))/xpm_plot.py not found, you can download it from https://github.com/Wang-Lin-boop/AutoMD!"
+                    exit
+                fi
+        else
+            export DIM1=$(awk -F':' '{print $1}'  <<< ${running_mode_array[1]})
+            export ASL1=$(awk -F':' '{print $2}'  <<< ${running_mode_array[1]})
+            export DIM2=$(awk -F':' '{print $1}'  <<< ${running_mode_array[2]})
+            export ASL2=$(awk -F':' '{print $2}'  <<< ${running_mode_array[2]})
+            if [ "$DIM1" == "RMSD" ] && [ "$DIM2" == "RG" ];then
+cat << st2 > analyse_RMSD_RG.st2
+Keywords = [
+{RMSD = {
+ASL = "$ASL1"
+Frame = 0
+Type = "Protein"
+}
+}
+{Rad_Gyration = {
+ASL = "$ASL2"
+}
+}
+]
+st2
+
+
+                $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD_RG.st2 analyse_RMSD_RG.st2
+                $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_RMSD_RG.st2 ${current_cms%%-out.cms}_RMSD_RG.csv
+                sed 's/,/ /g' ${current_cms%%-out.cms}_RMSD_RG.csv > analyse_RMSD_RG.xvg
+                awk '{$1 = NR-1; print}' analyse_RMSD_RG.xvg > analyse_RMSD_RG_plot.xvg
+                sed -i '1d' analyse_RMSD_RG_plot.xvg
+                ${Gromacs}/gmx sham -tsham 310 -nlevels 100 -f "analyse_RMSD_RG_plot.xvg" -ls ${job_name}_RMSD_RG_gibbs.xpm -g ${job_name}_RMSD_RG_gibbs.log -lsh ${job_name}_RMSD_RG_enthalpy.xpm -lss ${job_name}_RMSD_RG_entropy.xpm
+                sed -i 's/PC1/RMSD/g' ${job_name}_RMSD_RG_gibbs.xpm
+                sed -i 's/PC2/RG/g' ${job_name}_RMSD_RG_gibbs.xpm
+                python $(dirname $(readlink -f $0))/xpm_plot.py -f "${job_name}_RMSD_RG_gibbs.xpm" -o "${job_name}_RMSD_RG_gibbs"
+            elif [ "$DIM1" == "RMSD" ] && [ "$DIM2" == "DIS" ];then
+                export dis_mode=${running_mode_array[3]}
+cat << st2 > analyse_RMSD.st2
+Keywords = [
+{RMSD = {
+ASL = "$ASL1"
+Frame = 0
+Type = "Protein"
+}
+}
+]
+st2
+                $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD.st2 analyse_RMSD.st2
+                $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_RMSD.st2 ${current_cms%%-out.cms}_RMSD.csv
+                export DIS_ASL1=$(awk -F',' '{print $1}'  <<< $ASL2)
+                export DIS_ASL2=$(awk -F',' '{print $2}'  <<< $ASL2)
+                ${Desmond}/run trajectory_asl_monitor.py ${current_cms} "${job_name}_DIS" "${DIS_ASL1}" "${DIS_ASL2}"  "-report_${dis_mode}_dist" -distance 20
+                awk -F ',' '{print $2}' ${current_cms%%-out.cms}_RMSD.csv | paste -d ' ' - <(awk -F',' '{print $3}' ${job_name}_DIS.csv) > RMSD_DIS.xvg
+                sed -i '1d' RMSD_DIS.xvg
+                sed -i 's/\r//g' RMSD_DIS.xvg
+                awk '{printf "%d %s\n", NR, $0}' RMSD_DIS.xvg > analyse_RMSD_DIS_plot.xvg
+                ${Gromacs}/gmx sham -tsham 310 -nlevels 100 -f "analyse_RMSD_DIS_plot.xvg" -ls "${job_name}_RMSD_DIS_gibbs.xpm" -g "${job_name}_RMSD_DIS_gibbs.log" -lsh "${job_name}_RMSD_DIS_enthalpy.xpm" -lss "${job_name}_RMSD_DIS_entropy.xpm"
+                sed -i 's/PC1/RMSD/g' ${job_name}_RMSD_DIS_gibbs.xpm
+                sed -i 's/PC2/Distance/g' ${job_name}_RMSD_DIS_gibbs.xpm
+                python $(dirname $(readlink -f $0))/xpm_plot.py -f "${job_name}_RMSD_DIS_gibbs.xpm" -o "${job_name}_RMSD_DIS_gibbs"
+            elif [ "$DIM1" == "RG" ] && [ "$DIM2" == "DIS" ];then
+                export dis_mode=${running_mode_array[3]}
+cat << st2 > analyse_RG.st2
+Keywords = [
+{Rad_Gyration = {
+ASL = "$ASL1"
+}
+}
+]
+st2
+                $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RG.st2 analyse_RG.st2
+                $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_RG.st2 ${current_cms%%-out.cms}_RG.csv
+                export DIS_ASL1=$(awk -F',' '{print $1}'  <<< $ASL2)
+                export DIS_ASL2=$(awk -F',' '{print $2}'  <<< $ASL2)
+                ${Desmond}/run trajectory_asl_monitor.py "${current_cms}" "${job_name}_DIS" "${DIS_ASL1}" "${DIS_ASL2}"  "-report_${dis_mode}_dist" -distance 20
+                awk -F ',' '{print $2}' ${current_cms%%-out.cms}_RG.csv | paste -d ' ' - <(awk -F',' '{print $3}' ${job_name}_DIS.csv) > RG_DIS.xvg
+                sed -i '1d' RG_DIS.xvg
+                sed -i 's/\r//g' RG_DIS.xvg
+                awk '{printf "%d %s\n", NR, $0}' RG_DIS.xvg > analyse_RG_DIS_plot.xvg
+                ${Gromacs}/gmx sham -tsham 310 -nlevels 100 -f "analyse_RG_DIS_plot.xvg" -ls ${job_name}_RG_DIS_gibbs.xpm -g ${job_name}_RG_DIS_gibbs.log -lsh ${job_name}_RG_DIS_enthalpy.xpm -lss ${job_name}_RG_DIS_entropy.xpm
+                sed -i 's/PC1/RG/g' ${job_name}_RG_DIS_gibbs.xpm
+                sed -i 's/PC2/Distance/g' ${job_name}_RG_DIS_gibbs.xpm
+                python $(dirname $(readlink -f $0))/xpm_plot.py -f "${job_name}_RG_DIS_gibbs.xpm" -o "${job_name}_RG_DIS_gibbs"
+
+            elif [ "$DIM1" == "DIS" ] && [ "$DIM2" == "DIS" ];then
+                export dis_mode=${running_mode_array[3]}
+                export DIS_ASL1=$(awk -F',' '{print $1}'  <<< $ASL1)
+                export DIS_ASL2=$(awk -F',' '{print $2}'  <<< $ASL1)
+                export DIS_ASL3=$(awk -F',' '{print $1}'  <<< $ASL2)
+                export DIS_ASL4=$(awk -F',' '{print $2}'  <<< $ASL2)
+                ${Desmond}/run trajectory_asl_monitor.py "${current_cms}" "${job_name}_DIS_1" "${DIS_ASL1}" "${DIS_ASL2}"  "-report_${dis_mode}_dist" -distance 20
+                ${Desmond}/run trajectory_asl_monitor.py "${current_cms}" "${job_name}_DIS_2" "${DIS_ASL3}" "${DIS_ASL4}"  "-report_${dis_mode}_dist" -distance 20
+
+                awk -F ',' '{print $3}' ${job_name}_DIS_1.csv | paste -d ' ' - <(awk -F',' '{print $3}' ${job_name}_DIS_2.csv) > DIS.xvg
+                sed -i 's/\r//g' DIS.xvg
+                sed -i '1d' DIS.xvg
+                awk '{printf "%d %s\n", NR, $0}' DIS.xvg > analyse_DIS_plot.xvg
+                ${Gromacs}/gmx sham -tsham 310 -nlevels 100 -f "analyse_DIS_plot.xvg" -ls ${job_name}_DIS_gibbs.xpm -g ${job_name}_DIS_gibbs.log -lsh ${job_name}_DIS_enthalpy.xpm -lss ${job_name}_DIS_entropy.xpm
+                sed -i 's/PC1/Distance_1/g' ${job_name}_DIS_gibbs.xpm
+                sed -i 's/PC2/Distance_2/g' ${job_name}_DIS_gibbs.xpm
+                python $(dirname $(readlink -f $0))/xpm_plot.py -f "${job_name}_DIS_gibbs.xpm" -o "${job_name}_DIS_gibbs"
+
+            elif [ "$DIM1" == "RMSD" ] && [ "$DIM2" == "RMSD" ];then
+cat << st2 > analyse_RMSD.st2
+Keywords = [
+{RMSD = {
+ASL = "$ASL1"
+Frame = 0
+Type = "Protein"
+}
+}
+{RMSD = {
+ASL = "$ASL2"
+Frame = 0
+Type = "Protein"
+}
+}
+]
+st2
+                $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD.st2 analyse_RMSD.st2
+                $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_RMSD.st2 ${current_cms%%-out.cms}_RMSD.csv
+
+                sed -i '1d'  ${current_cms%%-out.cms}_RMSD.csv
+                sed -i 's/,/ /g' ${current_cms%%-out.cms}_RMSD.csv;mv ${current_cms%%-out.cms}_RMSD.csv RMSD_plot.xvg
+                ${Gromacs}/gmx sham -tsham 310 -nlevels 100 -f "RMSD_plot.xvg" -ls ${job_name}_RMSD_gibbs.xpm -g ${job_name}_RMSD_gibbs.log -lsh ${job_name}_RMSD_enthalpy.xpm -lss ${job_name}_RMSD_entropy.xpm
+                sed -i 's/PC1/RMSD_1/g' ${job_name}_RMSD_gibbs.xpm
+                sed -i 's/PC2/RMSD_2/g' ${job_name}_RMSD_gibbs.xpm
+                python $(dirname $(readlink -f $0))/xpm_plot.py -f "${job_name}_RMSD_gibbs.xpm" -o "${job_name}_RMSD_gibbs"
+        fi
     fi
+else
+    echo "Error: unvaild running mode ${task}."
+    echo "NOTE: we will skip the ${task}."
+fi
 done
