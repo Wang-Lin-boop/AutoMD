@@ -39,7 +39,7 @@ echo "export VIPARR_FFPATH=${PWD}/viparr-ffpublic/ff" >> ~/.bashrc
 ```
 git clone https://github.com/Wang-Lin-boop/AutoMD
 cd AutoMD
-echo "export PATH=${PWD}:${PATH}" >> ~/.bashrc
+echo "export PATH=${PWD}:\${PATH}" >> ~/.bashrc
 chmod +x AutoMD
 chmod +x AutoTRJ
 source ~/.bashrc
