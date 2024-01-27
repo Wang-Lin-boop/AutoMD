@@ -39,8 +39,9 @@ echo "export VIPARR_FFPATH=${PWD}/viparr-ffpublic/ff" >> ~/.bashrc
 ```
 git clone https://github.com/Wang-Lin-boop/AutoMD
 cd AutoMD
-echo "alias AutoMD=${PWD}/AutoMD" >> ~/.bashrc
+echo "export PATH=${PWD}:${PATH}" >> ~/.bashrc
 chmod +x AutoMD
+chmod +x AutoTRJ
 source ~/.bashrc
 ```
 *   Copy the mreged Amber force field to `${VIPARR_FFPATH}`.
