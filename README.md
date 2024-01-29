@@ -146,7 +146,7 @@ AutoMD -i "*.mae" -S OUC -l "POPC" -r "Membrane" -F "Charmm"
 Usage for AutoTRJ
 ----
 
-In order to facilitate the analysis of Desmond MD trajectories, we have developed a script named AutoTRJ, which collects all common analysis functions and implements them into a customizable analysis pipeline. Typically, when running MD simulations, we use at least three random seeds and perform three different simulation replicas. During the analysis stage, we can merge the trajectories using wildcards, such as `*-md`, and input them into the analysis pipeline.    
+_In order to facilitate the analysis of Desmond MD trajectories, we have developed a script named AutoTRJ, which collects all common analysis functions and implements them into a customizable analysis pipeline. Typically, when running MD simulations, we use at least three random seeds and perform three different simulation replicas. During the analysis stage, we can merge the trajectories using wildcards, such as `*-md`, and input them into the analysis pipeline._    
 
 ```
   -i <string>   The path to trajectory or regular expression for trajectories(will be merged). such as "*-md".
@@ -158,7 +158,7 @@ During runtime, it is possible to specify a task name, which will be used as a p
   -J <string>   Specify a basic jobname for this task, the basename of -i is recommended.
 ```
 
-The analysis pipeline for a task is specified using the -M parameter. For example, you can set up an analysis pipeline by using the following command: `-M "APCluster_5+PPIContact+MMGBSA"`. This pipeline will first perform unsupervised clustering of the trajectory using the affinity propagation clustering algorithm and output the structures of the top five clusters. Then, it will analyze the interactions on the protein-protein interface (PPI). Finally, it will analyze the MMGBSA binding free energy between the specified two components.    
+_The analysis pipeline for a task is specified using the -M parameter. For example, you can set up an analysis pipeline by using the following command: `-M "APCluster_5+PPIContact+MMGBSA"`. This pipeline will first perform unsupervised clustering of the trajectory using the affinity propagation clustering algorithm and output the structures of the top five clusters. Then, it will analyze the interactions on the protein-protein interface (PPI). Finally, it will analyze the MMGBSA binding free energy between the specified two components._    
 
 ```
   -M <string>   The running mode for this analysis task. the <..> means some options.
@@ -191,43 +191,43 @@ The analysis pipeline for a task is specified using the -M parameter. For exampl
             You can parallel the analysis task by "+", such as, "APCluster_5+PPIContact+MMGBSA".
 ```
 
-Note that you need to split the analysis tasks using the plus sign `+`.
+_Note that you need to split the analysis tasks using the plus sign `+`._
 
-To specify the two components of the protein-protein interface (PPI), or even a small molecule and a protein, you can use the -R and -L parameters. The -R parameter is used to specify the receptor component, while the -L parameter is used to specify the ligand component. By providing the appropriate input for these parameters, you can accurately define the two components involved in the interaction analysis.    
+_To specify the two components of the protein-protein interface (PPI), or even a small molecule and a protein, you can use the -R and -L parameters. The -R parameter is used to specify the receptor component, while the -L parameter is used to specify the ligand component. By providing the appropriate input for these parameters, you can accurately define the two components involved in the interaction analysis._    
 
-Before executing the analysis pipeline, additional preprocessing steps can be applied to the trajectories, such as extracting a subset of the trajectories.   
+_Before executing the analysis pipeline, additional preprocessing steps can be applied to the trajectories, such as extracting a subset of the trajectories._   
 
 ```
 Trajectories Processing Options:
   -T <string>   Slice trajectories when analyzed, if more than one trajectories given by -i, this slice will applied to all of them. The default is None. Such as "100:1000:1". <START:END:STEP>
 ```
 
-In addition to the preprocessing steps before analysis, the script also provides the functionality to consider only a subset of trajectories during the MM-GBSA calculations. This is mainly due to the computational complexity of MM-GBSA compared to other analysis tasks. Therefore, it is common practice to reduce the number of frames used for MM-GBSA calculations, for example, by computing MM-GBSA every 10 steps.   
+_In addition to the preprocessing steps before analysis, the script also provides the functionality to consider only a subset of trajectories during the MM-GBSA calculations. This is mainly due to the computational complexity of MM-GBSA compared to other analysis tasks. Therefore, it is common practice to reduce the number of frames used for MM-GBSA calculations, for example, by computing MM-GBSA every 10 steps._   
 
 ```
   -t <string>   Slice trajectories when calculating MM/GBSA, such as "100:1000:10". <START:END:STEP>
 ```
 
-In the MM-GBSA calculations, if you have pre-defined membrane position parameters for the membrane protein (which can be set in any panel of the Prime module during Desmond system setup), it is possible to replace the explicit membrane in the system with an implicit membrane during the MM-GBSA computation.    
+_In the MM-GBSA calculations, if you have pre-defined membrane position parameters for the membrane protein (which can be set in any panel of the Prime module during Desmond system setup), it is possible to replace the explicit membrane in the system with an implicit membrane during the MM-GBSA computation._    
 
 ```
   -m            Treat the explicit membrane to implicit membrane during MM-GBSA calculation.
 ```
 
-Sometimes, it is desirable not only to obtain representative conformations for each cluster generated by clustering analysis but also to extract all conformations within each cluster to create a conformational ensemble for reaction local free energy landscape. For this purpose, the `-c` parameter can be used to modify the output from representative conformations of clustering to output a representative trajectory.   
+_Sometimes, it is desirable not only to obtain representative conformations for each cluster generated by clustering analysis but also to extract all conformations within each cluster to create a conformational ensemble for reaction local free energy landscape. For this purpose, the `-c` parameter can be used to modify the output from representative conformations of clustering to output a representative trajectory._   
 
 ```
   -c            During the clustering process, the frames of a trajectory are preserved for each cluster, while representative members are stored in the CMS files.
 ```
 
-By default, trajectories are centered around the solute's center of mass using the first frame to ensure accuracy during analysis. However, for certain specific tasks, such as Occupancy, mere centering is insufficient. Often, it is necessary to superimpose the conformations in the trajectory onto a representative initial or experimental structure. This functionality can be achieved using the `-A` or `-a` options. The `-A` option allows specifying a reference structure, while the `-a` option aligns the first frame of the trajectory to serve as the reference structure.  
+_By default, trajectories are centered around the solute's center of mass using the first frame to ensure accuracy during analysis. However, for certain specific tasks, such as Occupancy, mere centering is insufficient. Often, it is necessary to superimpose the conformations in the trajectory onto a representative initial or experimental structure. This functionality can be achieved using the `-A` or `-a` options. The `-A` option allows specifying a reference structure, while the `-a` option aligns the first frame of the trajectory to serve as the reference structure._  
 
 ```
   -A <file>     Align the trajectory to a reference structure, given in ".mae" format.
   -a            Align the trajectory to the frist frame.
 ```
 
-In analytical analysis, the removal of solvents often greatly accelerates the speed of analysis. This option is achieved through -C or -P. The -C option allows the direct use of ASL expressions to remove a portion of the system, while -P evaporates the water in the solvent box, retaining only the surface water of the solute.   
+_In analytical analysis, the removal of solvents may greatly accelerates the speed of analysis. This option is achieved through -C or -P. The -C option allows the direct use of ASL expressions to remove a portion of the system, while -P evaporates the water in the solvent box, retaining only the surface water of the solute._   
 
 ```
   -C <ASL>      Set a ASL to clean the subsystem from trajectory, such as -C "not solvent".
