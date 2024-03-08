@@ -344,8 +344,14 @@ EOF
 };export -f box
 
 function membrane_box(){
-    export box_size_array=(${boxsize})
-    export boxsize=${box_size_array[0]}
+    # box type and size
+    if [ "${boxshape}"x == "orthorhombic"x ];then
+        export boxsize="[${boxxyz} ]"
+    elif [ "${boxshape}"x == "triclinic"x ];then
+        export boxsize="[${boxxyz} 60.0 60.0 60.0 ]"
+    else
+        export boxsize=${boxsize}
+    fi
     cat<<EOF
   box = {
      shape = orthorhombic
@@ -394,7 +400,7 @@ function set_sys_build_msj(){
     add_counterion ${neutralizeion} >> AutoMD.msj
     if [ ${relaxation_protocol} == "Membrane" ];then
         echo "NOTE: The membrane box must be orthorhombic, we will change your paramters to fit it boxtype!"
-        membrane_box ${lipid_type} >> AutoMD.msj
+        membrane_box >> AutoMD.msj
     else
         box >> AutoMD.msj
     fi
@@ -695,7 +701,7 @@ System Builder parameter:
             box types: dodecahedron_hexagon, cubic, orthorhombic, triclinic
   -s	Define a boxsize for your systems.  <${boxsize}>
             for dodecahedron_hexagon and cubic, defulat is 15.0;
-            for orthorhombic or triclinic box, defulat is [15.0 15.0 15.0];
+            for orthorhombic or triclinic box, defulat is 15.0 15.0 15.0;
             If you want use Orthorhombic or Triclinic box, your parameter should be like "15.0 15.0 15.0"
   -R    Redistribute the mass of heavy atoms to bonded hydrogen atoms to slow-down high frequency motions.
   -F	Define a force field to build your systems. <${ffid}> 
