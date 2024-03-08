@@ -352,7 +352,7 @@ function membrane_box(){
     else
         export boxsize=${boxsize}
     fi
-    cat<<EOF
+cat<<EOF
   box = {
      shape = orthorhombic
      size = [${boxsize} ${boxsize} ${boxsize} ]
@@ -365,7 +365,7 @@ function membrane_box(){
   override_forcefield = ${override_forcefield}
   rezero_system = false
 EOF
-}
+};export -f membrane_box
 
 function add_salt(){
     saltconcentration=$1
