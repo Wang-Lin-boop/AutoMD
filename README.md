@@ -222,7 +222,7 @@ _The analysis pipeline for a task is specified using the -M parameter. For examp
                 HbondMonitor_<ASL1>_<ASL2>:
                     monitor the hydrogen bond between two ASLs in the trajectory.
                 CustomFEL_<mode>:
-                    analyze the free energy landscape (FEL),the mode can  be PCA, "RMSD:ASL1_RG:ASL2","RMSD:ASL1_DIS:ASL2,ASL3_dismode",
+                    analyze the free energy landscape (FEL),the mode can be PCA, "RMSD:ASL1_RG:ASL2","RMSD:ASL1_DIS:ASL2,ASL3_dismode",
                     "RG:ASL1_DIS:ASL2,ASL3_dismode", "DIS:ASL1,ASL2_DIS:ASL3,ASL4_dismode", "RMSD:ASL1_RMSD:ASL2"
                 ConvertXTC: convert the trajectory to XTC format.
             You can parallel the analysis task by "+", such as, "APCluster_5+PPIContact+MMGBSA".
