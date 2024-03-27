@@ -1,35 +1,34 @@
-# AutoMD
+## AutoMD
 Fast to molecular dynamics simulation.  [中文文档](https://zhuanlan.zhihu.com/p/595698129)
 
 - [AutoMD](#automd)
   - [Installtion](#installtion)
-    - [1. Install the Desmond package.](#1-install-the-desmond-package)
-    - [2. Install the viparr and msys by pip.](#2-install-the-viparr-and-msys-by-pip)
-    - [3. Download AutoMD and additional force fields.](#3-download-automd-and-additional-force-fields)
+      - [1. Install the Desmond package.](#1-install-the-desmond-package)
+      - [2. Install the viparr and msys by pip.](#2-install-the-viparr-and-msys-by-pip)
+      - [3. Download AutoMD and additional force fields.](#3-download-automd-and-additional-force-fields)
   - [Usage for AutoMD (structures to trajectories)](#usage-for-automd-structures-to-trajectories)
-    - [Examples](#examples)
-    - [Options](#options)
+      - [Examples](#examples)
+      - [Options](#options)
   - [Molecular Force Fields](#molecular-force-fields)
       - [1. (Recommended) Charmm Small Molecule Library (CSML)](#1-recommended-charmm-small-molecule-library-csml)
       - [2. Amber Lipid, DNA, RNA and others](#2-amber-lipid-dna-rna-and-others)
   - [Usage for AutoTRJ  (trajectory analysis)](#usage-for-autotrj--trajectory-analysis)
-    - [Examples](#examples-1)
-    - [Options](#options-1)
+      - [Examples](#examples-1)
+      - [Options](#options-1)
   - [Disclaimer](#disclaimer)
   - [How to Cite](#how-to-cite)
   - [Acknowledgments](#acknowledgments)
 
 
-Installtion
-----
-### 1. Install the Desmond package.  
+### Installtion
+##### 1. Install the Desmond package.  
 *   Firstly, download the academic edition of [Desmond package](https://www.deshawresearch.com/resources.html) and install it on you HPC or PC. Of course, you can install the [SCHRODINGER package](https://www.schrodinger.com/downloads/releases) instead the academic edition of Desmond. Then, change the directory to the installtion path of Desmond or SCHRODINGER, and run this command to set the `$Desmond`:  
 ```
 echo "export Desmond=${PWD}/" >> ~/.bashrc
 ```
 *   Then, configure the `${Desmond}/schrodinger.hosts` following this paper: [How do I configure my schrodinger.hosts file for Desmond GPU jobs?
 ](https://www.schrodinger.com/kb/1844).   
-### 2. Install the viparr and msys by pip.  
+##### 2. Install the viparr and msys by pip.  
 *   Firstly, download the msys and viparr.   
 ```
 wget https://github.com/DEShawResearch/viparr/releases/download/4.7.35/viparr-4.7.35-cp38-cp38-manylinux2014_x86_64.whl
@@ -53,7 +52,7 @@ git clone https://github.com/DEShawResearch/viparr-ffpublic.git
 echo "export VIPARR_FFPATH=${PWD}/viparr-ffpublic/ff" >> ~/.bashrc
 ```
 
-### 3. Download AutoMD and additional force fields.
+##### 3. Download AutoMD and additional force fields.
 *   Download AutoMD and set the environment variable.
 ```
 git clone https://github.com/Wang-Lin-boop/AutoMD
@@ -68,9 +67,9 @@ source ~/.bashrc
 cp -r ff/* ${VIPARR_FFPATH}/
 ```
 
-Usage for AutoMD (structures to trajectories)
-----
-### Examples
+### Usage for AutoMD (structures to trajectories)
+##### Examples
+
   1) MD for cytoplasmic protein-ligand complex:  
 ```
 AutoMD -i "*.mae" -S INC -P "chain.name A" -L "res.ptype UNK" -F "S-OPLS"   
@@ -88,7 +87,8 @@ AutoMD -i "*.mae" -S "SPC:Cl:0.15-K-Cl+0.02-Mg2-Cl" -F Amber
 AutoMD -i "*.mae" -S OUC -l "POPC" -r "Membrane" -F "Charmm"  
 ```  
 
-### Options
+##### Options
+
 *   Input parameter: Use Mae or CMS as input, that, MAE can contain pre-defined membrane locations.   
 ```
   -i    Use a file name (Multiple files are wrapped in "", and split by ' ') "*.mae" or "*.cms" ;  
@@ -163,13 +163,13 @@ The current force fields support in AutoMD:
         If you adjust the number of frames, the recording interval will be modified.  
 ```
 
-Molecular Force Fields
-----
+### Molecular Force Fields
+
 _You can retrieve your small molecule in the following database, obtaion the residue name corresponding to your small molecule, and check that this residue name is present in the templates of some kind of force field._    
-#### 1. (Recommended) Charmm Small Molecule Library (CSML)    
+##### 1. (Recommended) Charmm Small Molecule Library (CSML)    
 *   [Charmm-GUI CSML](https://charmm-gui.org/?doc=archive&lib=csml): Small Molecules for Charmm Force fields  
 
-#### 2. Amber Lipid, DNA, RNA and others    
+##### 2. Amber Lipid, DNA, RNA and others    
 *   [Amber Lipid 17](https://ambermd.org/AmberModels_lipids.php)  
 *   [Amber Force Fields for DNA, RNA, and others](https://ambermd.org/AmberModels.php)  
 *   [AMBER parameter database](http://amber.manchester.ac.uk/):  Small Molecule parameters for Amber Force fields   
@@ -185,12 +185,11 @@ _Note that, in AutoMD, the -F Charmm ff is combined by aa.charmm.c36m, misc.char
 
 _Alternatively, you can also refer to the method [here for Amber](https://www.protocols.io/view/how-to-assign-amber-parameters-to-desmond-generate-bp2l6bqwkgqe/v1?step=5) or [here for Charmm](https://www.protocols.io/view/how-to-assign-charmm-parameters-to-desmond-generat-q26g78pr8lwz/v1?step=4) using self prepared Amber or Charmm small molecule force field files._   
 
-Usage for AutoTRJ  (trajectory analysis)
-----
+### Usage for AutoTRJ  (trajectory analysis)
 
 _In order to facilitate the analysis of Desmond MD trajectories, we have developed a script named AutoTRJ, which collects all common analysis functions and implements them into a customizable analysis pipeline.   
 
-### Examples
+##### Examples
 
   1) Analysis for protein-ligand complex:   
 ```
@@ -205,7 +204,7 @@ AutoTRJ -i "*-md" -J Distribution -M "APCluster_5+Occupancy+FEL" -C "not sovent"
 AutoTRJ -i "*-md" -J PPI -M "APCluster_5+PPIContact+FEL" -C "not sovent" -L "chain.name A"
 ```
 
-### Options
+##### Options
 
 Typically, when running MD simulations, we use at least three random seeds and perform three different simulation replicas. During the analysis stage, we can merge the trajectories using wildcards, such as `*-md`, and input them into the analysis pipeline._  
 
@@ -291,20 +290,19 @@ _In analytical analysis, the removal of solvents may greatly accelerates the spe
   -w <int>      Number of retained water molecules for parch (-P) stage. <200>
 ```
 
-Disclaimer
-----
+### Disclaimer
+
 _This script was developed to speed up my own work, and I put this script here for convenience for sharing to some people who need it. Discussion with me is welcome if you also wish to use it and have some problems, but I do not guarantee that we will solve it. Of note, this script was developed based on a series of software from the [D. E. Shaw Research](https://github.com/DEShawResearch), all credit to D. E. Shaw Research. I declare no competing interest._    
 
-How to Cite
-----
+### How to Cite
 
 We first used AutoMD in this work below, and if you would like to cite AutoMD, please cite the paper below.   
 
 A new variant of the colistin resistance gene MCR-1 with co-resistance to β-lactam antibiotics reveals a potential novel antimicrobial peptide. Liang L, Zhong LL, Wang L, Zhou D, Li Y, et al. (2023) A new variant of the colistin resistance gene MCR-1 with co-resistance to β-lactam antibiotics reveals a potential novel antimicrobial peptide. _PLOS Biology_ 21(12): e3002433. https://doi.org/10.1371/journal.pbio.3002433
 
 
-Acknowledgments
----
+### Acknowledgments
+
 We would like to express our special thanks to the following individuals and organizations, whose contributions have been invaluable to our research:    
 *   Thilo Mast and Dmitry Lupyan for sharing their methods for using alternative force fields in Desmond, which provided us with a valuable foundation for our work    
 *   D E Shaw Research and Schrödinger for their significant contributions to the development and maintenance of the Desmond software, which has allowed us to leverage this powerful platform for our research   
