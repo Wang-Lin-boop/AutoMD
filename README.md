@@ -1,6 +1,25 @@
 # AutoMD
 Fast to molecular dynamics simulation.  [中文文档](https://zhuanlan.zhihu.com/p/595698129)
 
+- [AutoMD](#automd)
+  - [Installtion](#installtion)
+    - [1. Install the Desmond package.](#1-install-the-desmond-package)
+    - [2. Install the viparr and msys by pip.](#2-install-the-viparr-and-msys-by-pip)
+    - [3. Download AutoMD and additional force fields.](#3-download-automd-and-additional-force-fields)
+  - [Usage for AutoMD (structures to trajectories)](#usage-for-automd-structures-to-trajectories)
+    - [Examples](#examples)
+    - [Options](#options)
+  - [Molecular Force Fields](#molecular-force-fields)
+      - [1. (Recommended) Charmm Small Molecule Library (CSML)](#1-recommended-charmm-small-molecule-library-csml)
+      - [2. Amber Lipid, DNA, RNA and others](#2-amber-lipid-dna-rna-and-others)
+  - [Usage for AutoTRJ  (trajectory analysis)](#usage-for-autotrj--trajectory-analysis)
+    - [Examples](#examples-1)
+    - [Options](#options-1)
+  - [Disclaimer](#disclaimer)
+  - [How to Cite](#how-to-cite)
+  - [Acknowledgments](#acknowledgments)
+
+
 Installtion
 ----
 ### 1. Install the Desmond package.  
@@ -49,27 +68,27 @@ source ~/.bashrc
 cp -r ff/* ${VIPARR_FFPATH}/
 ```
 
-Usage for AutoMD
+Usage for AutoMD (structures to trajectories)
 ----
-__Example:__   
+### Examples
   1) MD for cytoplasmic protein-ligand complex:  
 ```
 AutoMD -i "*.mae" -S INC -P "chain.name A" -L "res.ptype UNK" -F "S-OPLS"   
 ```
-  2) MD for plasma protein-protein complex:  
+  1) MD for plasma protein-protein complex:  
 ```
 AutoMD -i "*.mae" -S OUC -F "DES-Amber"  
 ```
-  3) MD for DNA/RNA-protein complex:  
+  1) MD for DNA/RNA-protein complex:  
 ```
 AutoMD -i "*.mae" -S "SPC:Cl:0.15-K-Cl+0.02-Mg2-Cl" -F Amber  
 ```
-  4) MD for membrane protein, need to prior place membrane in Meastro.  
+  1) MD for membrane protein, need to prior place membrane in Meastro.  
 ```
 AutoMD -i "*.mae" -S OUC -l "POPC" -r "Membrane" -F "Charmm"  
 ```  
 
-__Options:__  
+### Options
 *   Input parameter: Use Mae or CMS as input, that, MAE can contain pre-defined membrane locations.   
 ```
   -i    Use a file name (Multiple files are wrapped in "", and split by ' ') "*.mae" or "*.cms" ;  
@@ -166,12 +185,12 @@ _Note that, in AutoMD, the -F Charmm ff is combined by aa.charmm.c36m, misc.char
 
 _Alternatively, you can also refer to the method [here for Amber](https://www.protocols.io/view/how-to-assign-amber-parameters-to-desmond-generate-bp2l6bqwkgqe/v1?step=5) or [here for Charmm](https://www.protocols.io/view/how-to-assign-charmm-parameters-to-desmond-generat-q26g78pr8lwz/v1?step=4) using self prepared Amber or Charmm small molecule force field files._   
 
-Usage for AutoTRJ
+Usage for AutoTRJ  (trajectory analysis)
 ----
 
 _In order to facilitate the analysis of Desmond MD trajectories, we have developed a script named AutoTRJ, which collects all common analysis functions and implements them into a customizable analysis pipeline.   
 
-__Example:__  
+### Examples
 
   1) Analysis for protein-ligand complex:   
 ```
@@ -186,7 +205,7 @@ AutoTRJ -i "*-md" -J Distribution -M "APCluster_5+Occupancy+FEL" -C "not sovent"
 AutoTRJ -i "*-md" -J PPI -M "APCluster_5+PPIContact+FEL" -C "not sovent" -L "chain.name A"
 ```
 
-__Options:__  
+### Options
 
 Typically, when running MD simulations, we use at least three random seeds and perform three different simulation replicas. During the analysis stage, we can merge the trajectories using wildcards, such as `*-md`, and input them into the analysis pipeline._  
 
