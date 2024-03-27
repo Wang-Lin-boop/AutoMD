@@ -261,6 +261,12 @@ Disclaimer
 ----
 _This script was developed to speed up my own work, and I put this script here for convenience for sharing to some people who need it. Discussion with me is welcome if you also wish to use it and have some problems, but I do not guarantee that you will solve it. Of note, this script was developed based on a series of software from the [D. E. Shaw Research](https://github.com/DEShawResearch), all credit to D. E. Shaw Research. I declare no competing interest._    
 
+How to Cite
+----
+
+A new variant of the colistin resistance gene MCR-1 with co-resistance to β-lactam antibiotics reveals a potential novel antimicrobial peptide. Liang L, Zhong LL, Wang L, Zhou D, Li Y, et al. (2023) A new variant of the colistin resistance gene MCR-1 with co-resistance to β-lactam antibiotics reveals a potential novel antimicrobial peptide. _PLOS Biology_ 21(12): e3002433. https://doi.org/10.1371/journal.pbio.3002433
+
+
 Acknowledgments
 ---
 We would like to express our special thanks to the following individuals and organizations, whose contributions have been invaluable to our research:    
