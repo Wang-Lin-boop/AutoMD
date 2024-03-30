@@ -260,7 +260,7 @@ for task in "${task_array[@]}";do
     elif [ ${running_mode} == "CCM" ];then
         ${Desmond}/run trj_essential_dynamics.py -asl "(${receptor_ASL}) OR (${ligand_ASL})" -projection -cross-correlation "${current_cms}" "${current_trajectory}" "${job_name}_CCM"
     elif [ ${running_mode} == "BFactor" ];then
-        ${Desmond}/run trajectory_bfactors.py -asl "(${receptor_ASL}) OR (${ligand_ASL})" -byatom "${current_cms}" "${job_name}_${task}.mae"
+        ${Desmond}/run trajectory_bfactors.py -asl "(${receptor_ASL}))" -byatom "${current_cms}" "${job_name}_${task}.mae"
     elif [ ${running_mode} == "RMSF" ];then
         ${Desmond}/run trajectory_bfactors.py -asl "(${receptor_ASL})" "${current_cms}" -csv "${job_name}_${task}.mae"
     elif [ ${running_mode} == "SiteMap" ];then
