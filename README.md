@@ -4,8 +4,8 @@ Fast to molecular dynamics simulation.  [中文文档](https://zhuanlan.zhihu.co
 - [AutoMD](#automd)
   - [Installtion](#installtion)
       - [1. Install the Desmond package.](#1-install-the-desmond-package)
-      - [2. Install the viparr and msys by pip.](#2-install-the-viparr-and-msys-by-pip)
-      - [3. Download AutoMD and additional force fields.](#3-download-automd-and-additional-force-fields)
+      - [2. Download AutoMD and AutoTRJ.](#2-download-automd-and-autotrj)
+      - [3. Install the viparr and msys by pip.](#3-install-the-viparr-and-msys-by-pip)
   - [Usage for AutoMD (structures to trajectories)](#usage-for-automd-structures-to-trajectories)
       - [Examples](#examples)
       - [Options](#options)
@@ -28,7 +28,19 @@ echo "export Desmond=${PWD}/" >> ~/.bashrc
 ```
 *   Then, configure the `${Desmond}/schrodinger.hosts` following this paper: [How do I configure my schrodinger.hosts file for Desmond GPU jobs?
 ](https://www.schrodinger.com/kb/1844).   
-##### 2. Install the viparr and msys by pip.  
+
+##### 2. Download AutoMD and AutoTRJ.
+*   Download AutoMD and set the environment variable.
+```
+git clone https://github.com/Wang-Lin-boop/AutoMD
+cd AutoMD
+echo "export PATH=${PWD}:\${PATH}" >> ~/.bashrc
+chmod +x AutoMD
+chmod +x AutoTRJ
+source ~/.bashrc
+```
+
+##### 3. Install the viparr and msys by pip.  
 *   Firstly, download the msys and viparr.   
 ```
 wget https://github.com/DEShawResearch/viparr/releases/download/4.7.35/viparr-4.7.35-cp38-cp38-manylinux2014_x86_64.whl
@@ -50,16 +62,6 @@ echo "export viparr=${PWD}/schrodinger.ve/bin" >> ~/.bashrc
 ```
 git clone https://github.com/DEShawResearch/viparr-ffpublic.git
 echo "export VIPARR_FFPATH=${PWD}/viparr-ffpublic/ff" >> ~/.bashrc
-```
-
-##### 3. Download AutoMD and additional force fields.
-*   Download AutoMD and set the environment variable.
-```
-git clone https://github.com/Wang-Lin-boop/AutoMD
-cd AutoMD
-echo "export PATH=${PWD}:\${PATH}" >> ~/.bashrc
-chmod +x AutoMD
-chmod +x AutoTRJ
 source ~/.bashrc
 ```
 *   Copy the mreged Amber force field to `${VIPARR_FFPATH}`.
