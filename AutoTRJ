@@ -213,6 +213,9 @@ fi
 ########################
 ## analyze trajectory ##
 ########################
+if [ ${CPU_HOST} == "localhost" ];then
+    export CPU_HOST="localhost -WAIT"
+fi
 IFS='+' read -ra task_array <<< "$running_tasks"
 for task in "${task_array[@]}";do
     IFS='_' read -ra running_mode_array <<< "$task"
