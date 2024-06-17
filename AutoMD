@@ -699,7 +699,7 @@ System Builder parameter:
             If you want use Orthorhombic or Triclinic box, your parameter should be like "15.0 15.0 15.0"
   -R    Redistribute the mass of heavy atoms to bonded hydrogen atoms to slow-down high frequency motions.
   -F	Define a force field to build your systems. <${ffid}> 
-            OPLS_2005, S-OPLS are recommended to receptor-ligand systems.
+            OPLS_2005, S-OPLS, OPLS4, OPLS5 are recommended to receptor-ligand systems.
             Amber, Charmm, DES-Amber are recommended to other systems. Use -O to show more details.
             Use the "Custom" to load parameters from input .cms file.
 
@@ -855,9 +855,9 @@ export fflist=("OPLS_2005" "OPLS3e" "OPLS4" "OPLS3" "OPLS2" "Amber" "Charmm" "DE
 export nagativeionlist=("F" "Cl" "Br" "I")
 export positiveionlist=("Na" "K" "Li" "Rb" "Cs" "Mg2" "Ca2" "Zn2" "Fe2" "Fe3")
 export all_ions_list=("F" "Cl" "Br" "I" "Na" "K" "Li" "Rb" "Cs" "Mg2" "Ca2" "Zn2" "Fe2" "Fe3")
-export solventlist=("SPC" "SPCE" "TIP3P" "TIP4P" "TIP5P" "DMSO" "METHANOL")
+export solventlist=("SPC" "SPCE" "TIP3P" "TIP4P" "TIP5P" "DMSO" "METHANOL" "OCTANOL" "TIP4PEW")
 export boxlist=("orthorhombic" "triclinic" "dodecahedron_hexagon" "cubic")
-export waterlist=("SPC" "TIP3P" "TIP4P" "TIP5P")
+export waterlist=("SPC" "TIP3P" "TIP4P" "TIP5P" "none" "TIP3P_CHARMM" "TIP4PD" "TIP4P2005" "SPCE")
 export relaxation_protocol_list=("Membrane" "Solute")
 export ensemble_class_list=("NPT" "NVT" "NPgT")
 export first_input="yes"
