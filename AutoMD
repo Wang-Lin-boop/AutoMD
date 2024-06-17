@@ -851,7 +851,7 @@ fi
 ################################
 ## Check and Parse Params
 ################################
-export fflist=("OPLS_2005" "OPLS3e" "OPLS4" "OPLS3" "OPLS2" "Amber" "Charmm" "DES-Amber" "S-OPLS" "Custom" "amber_misc")
+export fflist=("OPLS_2005" "OPLS3e" "OPLS4" "OPLS5" "OPLS3" "OPLS2" "Amber" "Charmm" "DES-Amber" "S-OPLS" "Custom" "amber_misc")
 export nagativeionlist=("F" "Cl" "Br" "I")
 export positiveionlist=("Na" "K" "Li" "Rb" "Cs" "Mg2" "Ca2" "Zn2" "Fe2" "Fe3")
 export all_ions_list=("F" "Cl" "Br" "I" "Na" "K" "Li" "Rb" "Cs" "Mg2" "Ca2" "Zn2" "Fe2" "Fe3")
