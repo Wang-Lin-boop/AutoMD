@@ -988,18 +988,25 @@ for i in `ls $input`; do
         fi
         if [ ${trunoff_md} == true ]; then
             echo "Note: You turn off the MD simulation stage!"
+            if [ ${GPU_HOST} == "localhost" ];then
+                ${Desmond}/utilities/multisim -JOBNAME ${i%%.*}-${seed}-md -HOST "localhost:3" -SUBHOST "localhost" -maxjob 0 -m AutoMD.msj -WAIT -lic DESMOND_ACADEMIC:16 -o ../${i%%.*}-${seed}-system.cms ${system_file}
+                echo "MD system ${i%%.*} with seed ${seed} finished."
+            else
+                ${Desmond}/utilities/multisim -JOBNAME ${i%%.*}-${seed}-md -HOST "${CPU_HOST}:3" -SUBHOST ${GPU_HOST} -maxjob 0 -m AutoMD.msj -lic DESMOND_ACADEMIC:16 -o ../${i%%.*}-${seed}-system.cms ${system_file}
+                echo "MD system ${i%%.*} with seed ${seed} had been submitted to ${GPU_HOST}."
+            fi
         else
             set_relax # Parse relaxation protocol
             set_md # Parse Seeds, ensemble class, temperature and md time
+            if [ ${GPU_HOST} == "localhost" ];then
+                ${Desmond}/utilities/multisim -JOBNAME ${i%%.*}-${seed}-md -HOST "localhost:3" -SUBHOST "localhost" -maxjob 0 -m AutoMD.msj -c ${ensemble_class}.cfg -WAIT -lic DESMOND_ACADEMIC:16 -o ../${i%%.*}-${seed}-md-out.cms ${system_file}
+                echo "MD system ${i%%.*} with seed ${seed} finished."
+            else
+                ${Desmond}/utilities/multisim -JOBNAME ${i%%.*}-${seed}-md -HOST "${CPU_HOST}:3" -SUBHOST ${GPU_HOST} -maxjob 0 -m AutoMD.msj -c ${ensemble_class}.cfg -lic DESMOND_ACADEMIC:16 -o ../${i%%.*}-${seed}-md-out.cms ${system_file}
+                echo "MD system ${i%%.*} with seed ${seed} had been submitted to ${GPU_HOST}."
+            fi
+            genenate_analysis_scripts
         fi
-        if [ ${GPU_HOST} == "localhost" ];then
-            ${Desmond}/utilities/multisim -JOBNAME ${i%%.*}-${seed}-md -HOST "localhost:3" -SUBHOST "localhost" -maxjob 0 -m AutoMD.msj -c ${ensemble_class}.cfg -WAIT -lic DESMOND_ACADEMIC:16 -o ../${i%%.*}-${seed}-md-out.cms ${system_file}
-            echo "MD system ${i%%.*} with seed ${seed} finished."
-        else
-            ${Desmond}/utilities/multisim -JOBNAME ${i%%.*}-${seed}-md -HOST "${CPU_HOST}:3" -SUBHOST ${GPU_HOST} -maxjob 0 -m AutoMD.msj -c ${ensemble_class}.cfg -lic DESMOND_ACADEMIC:16 -o ../${i%%.*}-${seed}-md-out.cms ${system_file}
-            echo "MD system ${i%%.*} with seed ${seed} had been submitted to ${GPU_HOST}."
-        fi
-        genenate_analysis_scripts
         cd ..
         date
     done
