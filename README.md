@@ -5,7 +5,7 @@ Fast to molecular dynamics simulation.  [中文文档](https://zhuanlan.zhihu.co
   - [Installtion](#installtion)
       - [1. Install the Desmond package.](#1-install-the-desmond-package)
       - [2. Download AutoMD and AutoTRJ.](#2-download-automd-and-autotrj)
-      - [3. Install the viparr and msys by pip.](#3-install-the-viparr-and-msys-by-pip)
+      - [3. Install the viparr and msys by pip (skip this step if you only need the OPLS force field).](#3-install-the-viparr-and-msys-by-pip-skip-this-step-if-you-only-need-the-opls-force-field)
   - [Usage for AutoMD (structures to trajectories)](#usage-for-automd-structures-to-trajectories)
       - [Examples](#examples)
       - [Options](#options)
@@ -40,7 +40,7 @@ chmod +x AutoTRJ
 source ~/.bashrc
 ```
 
-##### 3. Install the viparr and msys by pip.  
+##### 3. Install the viparr and msys by pip (skip this step if you only need the OPLS force field).  
 *   Firstly, download the msys and viparr.   
 ```
 wget https://github.com/DEShawResearch/viparr/releases/download/4.7.35/viparr-4.7.35-cp38-cp38-manylinux2014_x86_64.whl
