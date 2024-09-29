@@ -76,15 +76,15 @@ cp -r ff/* ${VIPARR_FFPATH}/
 ```
 AutoMD -i "*.mae" -S INC -P "chain.name A" -L "res.ptype UNK" -F "S-OPLS"   
 ```
-  1) MD for plasma protein-protein complex:  
+  2) MD for plasma protein-protein complex:  
 ```
 AutoMD -i "*.mae" -S OUC -F "DES-Amber"  
 ```
-  1) MD for DNA/RNA-protein complex:  
+  3) MD for DNA/RNA-protein complex:  
 ```
 AutoMD -i "*.mae" -S "SPC:Cl:0.15-K-Cl+0.02-Mg2-Cl" -F Amber  
 ```
-  1) MD for membrane protein, need to prior place membrane in Meastro.  
+  4) MD for membrane protein, need to prior place membrane in Meastro.  
 ```
 AutoMD -i "*.mae" -S OUC -l "POPC" -r "Membrane" -F "Charmm"  
 ```  
