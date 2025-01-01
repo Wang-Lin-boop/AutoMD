@@ -300,7 +300,7 @@ _This script was developed to speed up my own work, and I put this script here f
 
 For the most case, you don't need to specifically cite AutoMD, you can just cite the Desmond package. Of course, take care to properly describe the simulation conditions you are using, such as temperature, buffer, and force field. 
 
-We first used AutoMD in this work below, and if you would like to cite AutoMD, please cite the paper below.   
+We first used AutoMD in this work below, if you would like to cite AutoMD, please cite the paper below.   
 
 A new variant of the colistin resistance gene MCR-1 with co-resistance to β-lactam antibiotics reveals a potential novel antimicrobial peptide. Liang L, Zhong LL, Wang L, Zhou D, Li Y, et al. (2023) A new variant of the colistin resistance gene MCR-1 with co-resistance to β-lactam antibiotics reveals a potential novel antimicrobial peptide. _PLOS Biology_ 21(12): e3002433. https://doi.org/10.1371/journal.pbio.3002433
 
