@@ -203,7 +203,7 @@ AutoTRJ -i "*-md" -J Distribution -M "APCluster_5+Occupancy+FEL" -C "not sovent"
 ```
   3) Analysis for protein-protein interaction: 
 ```
-AutoTRJ -i "*-md" -J PPI -M "APCluster_5+PPIContact+FEL" -C "not sovent" -L "chain.name A"
+AutoTRJ -i "*-md" -J PPI -M "APCluster_5+PPIContact+FEL" -C "not solvent" -L "chain.name A"
 ```
 
 ##### Options
