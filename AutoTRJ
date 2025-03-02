@@ -177,7 +177,7 @@ else
         input_cms=`ls ${input} | grep "in.cms" | head -n 1`
         export trj_id=1
         for trj in ${input}/*trj; do
-            ${Desmond}/run trj_center.py -t "${trj}" ${slice_cmd} -asl "${receptor_ASL}" "${job_name}_${trj_id}-out.cms" "${job_name}_Separ${trj_id}"
+            ${Desmond}/run trj_center.py -t "${trj}" ${slice_cmd} -asl "${receptor_ASL}" ${input_cms%%-in.cms}/${input_cms} "${job_name}_Separ${trj_id}"
             ((trj_id+=1))
         done
         ${Desmond}/run trj_merge.py ${input_cms%%-in.cms}/${input_cms} ${job_name}_Separ* -output-trajectory-format dtr -concat 0 10 -o ${job_name}_TRJIN 
