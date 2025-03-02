@@ -180,7 +180,7 @@ else
             ${Desmond}/run trj_center.py -t "${trj}" ${slice_cmd} -asl "${receptor_ASL}" ${input_cms%%-in.cms}/${input_cms} "${job_name}_Separ${trj_id}"
             ((trj_id+=1))
         done
-        ${Desmond}/run trj_merge.py ${input_cms%%-in.cms}/${input_cms} ${job_name}_Separ*/ -output-trajectory-format dtr -concat 0 10 -o ${job_name}_TRJIN 
+        ${Desmond}/run trj_merge.py ${input_cms%%-in.cms}/${input_cms} ${job_name}_Separ*_trj/ -output-trajectory-format dtr -concat 0 10 -o ${job_name}_TRJIN 
     else
         ${Desmond}/run trj_center.py -t "${input}/${input}_trj" -asl "${receptor_ASL}" ${slice_cmd} "${input}/${input}-out.cms" "${job_name}_TRJIN"
     fi
