@@ -91,7 +91,7 @@ if [ -d ${Desmond}/ ];then
     echo "The environment variable \${Desmond} not found. Please check the Desmond path in your ~/.bashrc."
     exit
   fi
-  if [ "`grep -c ${CPU_HOST} ${Desmond}/schrodinger.hosts`" == "0" ];then
+  if [ "`grep -c ${CPU_HOST} ${Desmond}/Desmond.hosts`" == "0" ];then
     echo ${CPU_HOST} "Hostfile not found."
     exit
   fi
@@ -175,8 +175,12 @@ else
     fi
     if [ ${trajectories_num} -gt 1 ];then
         input_cms=`ls ${input} | grep "in.cms" | head -n 1`
-        $SCHRODINGER/run trj_merge.py ${input_cms%%-in.cms}/${input_cms} ${input}/*trj -output-trajectory-format dtr -concat 0 10 ${slice_cmd} -o ${job_name}_merge 
-        ${Desmond}/run trj_center.py -t "${job_name}_merge_trj" -asl "${receptor_ASL}" "${job_name}_merge-out.cms" "${job_name}_TRJIN"
+        export trj_id=1
+        for trj in ${input}/*trj; do
+            ${Desmond}/run trj_center.py -t "${trj}" ${slice_cmd} -asl "${receptor_ASL}" "${job_name}_${trj_id}-out.cms" "${job_name}_Separ${trj_id}"
+            ((trj_id+=1))
+        done
+        ${Desmond}/run trj_merge.py ${input_cms%%-in.cms}/${input_cms} ${job_name}_Separ* -output-trajectory-format dtr -concat 0 10 -o ${job_name}_TRJIN 
     else
         ${Desmond}/run trj_center.py -t "${input}/${input}_trj" -asl "${receptor_ASL}" ${slice_cmd} "${input}/${input}-out.cms" "${job_name}_TRJIN"
     fi
@@ -297,8 +301,8 @@ a3 = ${running_mode_array[3]}
 }
 ]
 st2
-        $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_Angle.st2 analyse_Angle.st2
-        $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_Angle.st2 ${current_cms%%-out.cms}_Angle.csv
+        $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_Angle.st2 analyse_Angle.st2
+        $Desmond/run st2csv.py ${current_cms%%-out.cms}_Angle.st2 ${current_cms%%-out.cms}_Angle.csv
     
     elif [ "$running_mode" == "DihedralMonitor" ]; then
 cat << st2 > analyse_Dihedral.st2
@@ -312,8 +316,8 @@ a4 = ${running_mode_array[4]}
 }
 ]
 st2
-        $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_Dihedral.st2 analyse_Dihedral.st2
-        $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_Dihedral.st2 ${current_cms%%-out.cms}_Dihedral.csv
+        $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_Dihedral.st2 analyse_Dihedral.st2
+        $Desmond/run st2csv.py ${current_cms%%-out.cms}_Dihedral.st2 ${current_cms%%-out.cms}_Dihedral.csv
     elif [ "$running_mode" == "HbondMonitor" ]; then
 
 cat << st2 > analyse_Hbond.st2
@@ -325,8 +329,8 @@ ASL2 = ${running_mode_array[2]}
 }
 ]
 st2
-        $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_Hbond.st2 analyse_Hbond.st2
-        $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_Hbond.st2 ${current_cms%%-out.cms}_Hbond.csv
+        $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_Hbond.st2 analyse_Hbond.st2
+        $Desmond/run st2csv.py ${current_cms%%-out.cms}_Hbond.st2 ${current_cms%%-out.cms}_Hbond.csv
     elif [ "$running_mode" == "CustomFEL" ]; then
         export FEL_mode=${running_mode_array[1]}
         if [ "$FEL_mode" == "PCA" ]; then
@@ -363,8 +367,8 @@ ASL = "$ASL2"
 st2
 
 
-                $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD_RG.st2 analyse_RMSD_RG.st2
-                $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_RMSD_RG.st2 ${current_cms%%-out.cms}_RMSD_RG.csv
+                $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD_RG.st2 analyse_RMSD_RG.st2
+                $Desmond/run st2csv.py ${current_cms%%-out.cms}_RMSD_RG.st2 ${current_cms%%-out.cms}_RMSD_RG.csv
                 sed 's/,/ /g' ${current_cms%%-out.cms}_RMSD_RG.csv > analyse_RMSD_RG.xvg
                 awk '{$1 = NR-1; print}' analyse_RMSD_RG.xvg > analyse_RMSD_RG_plot.xvg
                 sed -i '1d' analyse_RMSD_RG_plot.xvg
@@ -384,8 +388,8 @@ Type = "Protein"
 }
 ]
 st2
-                $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD.st2 analyse_RMSD.st2
-                $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_RMSD.st2 ${current_cms%%-out.cms}_RMSD.csv
+                $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD.st2 analyse_RMSD.st2
+                $Desmond/run st2csv.py ${current_cms%%-out.cms}_RMSD.st2 ${current_cms%%-out.cms}_RMSD.csv
                 export DIS_ASL1=$(awk -F',' '{print $1}'  <<< $ASL2)
                 export DIS_ASL2=$(awk -F',' '{print $2}'  <<< $ASL2)
                 ${Desmond}/run trajectory_asl_monitor.py ${current_cms} "${job_name}_DIS" "${DIS_ASL1}" "${DIS_ASL2}"  "-report_${dis_mode}_dist" -distance 20
@@ -407,8 +411,8 @@ ASL = "$ASL1"
 }
 ]
 st2
-                $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RG.st2 analyse_RG.st2
-                $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_RG.st2 ${current_cms%%-out.cms}_RG.csv
+                $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RG.st2 analyse_RG.st2
+                $Desmond/run st2csv.py ${current_cms%%-out.cms}_RG.st2 ${current_cms%%-out.cms}_RG.csv
                 export DIS_ASL1=$(awk -F',' '{print $1}'  <<< $ASL2)
                 export DIS_ASL2=$(awk -F',' '{print $2}'  <<< $ASL2)
                 ${Desmond}/run trajectory_asl_monitor.py "${current_cms}" "${job_name}_DIS" "${DIS_ASL1}" "${DIS_ASL2}"  "-report_${dis_mode}_dist" -distance 20
@@ -456,8 +460,8 @@ Type = "Protein"
 }
 ]
 st2
-                $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD.st2 analyse_RMSD.st2
-                $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_RMSD.st2 ${current_cms%%-out.cms}_RMSD.csv
+                $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD.st2 analyse_RMSD.st2
+                $Desmond/run st2csv.py ${current_cms%%-out.cms}_RMSD.st2 ${current_cms%%-out.cms}_RMSD.csv
 
                 sed -i '1d'  ${current_cms%%-out.cms}_RMSD.csv
                 sed -i 's/,/ /g' ${current_cms%%-out.cms}_RMSD.csv;mv ${current_cms%%-out.cms}_RMSD.csv RMSD_plot.xvg
