@@ -43,6 +43,7 @@ Required Options:
                 MMGBSA: run MM-GBSA on the trajectory, require "-L" option. 
                 BFactor: calculate atom B-factors from trajectory (receptor and ligand).
                 RMSF: calculate RMSF from trajectory (receptor).
+                RadiusGyration: calculate the radius of gyration from trajectory (receptor).
                 DistanceMonitor_<res1_asl>_<res2_asl>_<mode>: 
                     monitor the distance between two residues in the trajectory,
                     the mode can be min or center for minimum distance or center of mass distance.
