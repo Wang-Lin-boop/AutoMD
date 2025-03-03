@@ -43,6 +43,7 @@ Required Options:
                 MMGBSA: run MM-GBSA on the trajectory, require "-L" option. 
                 BFactor: calculate atom B-factors from trajectory (receptor and ligand).
                 RMSF: calculate RMSF from trajectory (receptor).
+                RadiusGyration: calculate the radius of gyration from trajectory (receptor).
                 DistanceMonitor_<res1_asl>_<res2_asl>_<mode>: 
                     monitor the distance between two residues in the trajectory,
                     the mode can be min or center for minimum distance or center of mass distance.
@@ -270,6 +271,17 @@ for task in "${task_array[@]}";do
         ${Desmond}/run trajectory_bfactors.py -asl "(${receptor_ASL}))" -byatom "${current_cms}" "${job_name}_${task}.mae"
     elif [ ${running_mode} == "RMSF" ];then
         ${Desmond}/run trajectory_bfactors.py -asl "(${receptor_ASL})" "${current_cms}" -csv "${job_name}_${task}.mae"
+    elif [ ${running_mode} == "RadiusGyration" ]; then
+        cat << st2 > analyse_Rg.st2
+Keywords = [
+{Rad_Gyration = {
+ASL = "$receptor_ASL"
+}
+}
+]
+st2
+        $SCHRODINGER/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RadiusGyration.st2 analyse_Rg.st2
+        $SCHRODINGER/run st2csv.py ${current_cms%%-out.cms}_RadiusGyration.st2 ${current_cms%%-out.cms}_RadiusGyration.csv
     elif [ ${running_mode} == "SiteMap" ];then
         ${Desmond}/run trajectory_binding_site_volumes.py -HOST ${CPU_HOST} -superimpose -protein_asl "${receptor_ASL}" -sitemap_all "all" -sitemap_options "maxsites:${running_mode_array[1]}" -omae "${job_name}_${task}_OUT.mae" -ocsv "${job_name}_${task}_OUT.csv" "${current_cms}" trajectory
     elif [ ${running_mode} == "PocketMonitor" ];then
