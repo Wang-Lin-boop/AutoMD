@@ -336,8 +336,8 @@ st2
 cat << st2 > analyse_Hbond.st2
 Keywords = [
 {HBonds = {
-ASL1 = ${running_mode_array[1]}
-ASL2 = ${running_mode_array[2]}
+ASL1 = "${running_mode_array[1]}"
+ASL2 = "${running_mode_array[2]}"
 }
 }
 ]
