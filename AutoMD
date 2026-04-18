@@ -386,6 +386,11 @@ function set_sys_build_msj(){
     # genenate parts to system build for msj 
     SYS_array=(${SYS_pipeline//:/ })
     export solvent=${SYS_array[0]}
+    for line in ${waterlist[@]}; do
+    if [ "$solvent" == "$line" ];then
+        export water="water = ${solvent}"
+    break
+    fi; done
     export neutralizeion=${SYS_array[1]}
     export salt_buffer_info=${SYS_array[2]}
     [ ${first_input} == "no" ] || checkparam ${neutralizeion} "${all_ions_list[*]}"
@@ -870,11 +875,6 @@ if [ "$constraint"x == "true"x ];then
 else
     export constraintDescription="restrain = none"
 fi
-for line in ${waterlist[@]}; do
-if [ "$solvent" == "$line" ];then
-  export water="water = ${solvent}"
-  break
-fi; done
 
 ################################
 ## Assign Force Field
