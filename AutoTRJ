@@ -20,6 +20,7 @@ export CPU_HOST="CPU"
 export NJOBS=30
 export Desmond=${Desmond}
 export Gromacs=${Gromacs}
+export simulation_time=""
 
 function help(){
 cat<<HELP
@@ -43,6 +44,10 @@ Required Options:
                 MMGBSA: run MM-GBSA on the trajectory, require "-L" option. 
                 BFactor: calculate atom B-factors from trajectory (receptor and ligand).
                 RMSF: calculate RMSF from trajectory (receptor).
+                RMSD: calculate RMSD time-series for all protein atoms, outputs CSV and plot.
+                RMSD_CA: calculate RMSD time-series for C-alpha atoms only, outputs CSV and plot.
+                RMSD_Backbone: calculate RMSD time-series for backbone atoms only, outputs CSV and plot.
+                LigandRMSD: calculate ligand RMSD (fitted to receptor) time-series, outputs CSV and plot.
                 RadiusGyration: calculate the radius of gyration from trajectory (receptor).
                 DistanceMonitor_<res1_asl>_<res2_asl>_<mode>: 
                     monitor the distance between two residues in the trajectory,
@@ -53,6 +58,9 @@ Required Options:
                     monitor the dihedral angle between four atoms in the trajectory.
                 HbondMonitor_<ASL1>_<ASL2>: 
                     monitor the hydrogen bond between two ASLs in the trajectory.
+                HbondAnalysis_<ASL1>_<ASL2>: 
+                    advanced hydrogen bond analysis between two ASLs including:
+                    occupancy percentage, lifetime statistics, and distance/angle distributions.
                 CustomFEL_<mode>: 
                     analyze the free energy landscape (FEL),the mode can  be PCA, "RMSD:ASL1_RG:ASL2","RMSD:ASL1_DIS:ASL2,ASL3_dismode", 
                     "RG:ASL1_DIS:ASL2,ASL3_dismode", "DIS:ASL1,ASL2_DIS:ASL3,ASL4_dismode", "RMSD:ASL1_RMSD:ASL2"
@@ -80,6 +88,7 @@ Job Control Options:
   -N <int>      CPU number for per analysis task. <${NJOBS}>
   -G <path>     Path to the bin of Gromacs. <${Gromacs}>
   -D <path>	    Path to the installation directory of Desmond. <${Desmond}>
+  -S <float>    Total simulation time in nanoseconds (ns) for RMSD plots. <optional>
 
 Thank you for your using, If you found any question, Please contact wanglin3@shanghaitech.edu.cn.
 HELP
@@ -105,7 +114,7 @@ fi
 ################################
 ## parse the options ##
 ################################
-while getopts ":hi:J:M:T:R:A:C:L:H:G:D:N:P:w:mat:c" opt
+while getopts ":hi:J:M:T:R:A:C:L:H:G:D:N:P:w:mat:cS:" opt
 do
   case $opt in
     h)
@@ -147,6 +156,8 @@ do
         export Gromacs=$OPTARG;;
     D)
         export Desmond=$OPTARG;;
+    S)
+        export simulation_time=$OPTARG;;
     ?)
       echo ""
       echo "Error: Do not use undefined options. Try -h."
@@ -220,7 +231,7 @@ fi
 ## analyze trajectory ##
 ########################
 if [ ${CPU_HOST} == "localhost" ];then
-    export CPU_HOST="localhost -WAIT"
+    export CPU_HOST="localhost"
 fi
 IFS='+' read -ra task_array <<< "$running_tasks"
 for task in "${task_array[@]}";do
@@ -272,6 +283,95 @@ for task in "${task_array[@]}";do
         ${Desmond}/run trajectory_bfactors.py -asl "(${receptor_ASL}))" -byatom "${current_cms}" "${job_name}_${task}.mae"
     elif [ ${running_mode} == "RMSF" ];then
         ${Desmond}/run trajectory_bfactors.py -asl "(${receptor_ASL})" "${current_cms}" -csv "${job_name}_${task}.mae"
+    elif [ ${running_mode} == "RMSD" ];then
+cat << st2 > analyse_RMSD_timeseries.st2
+Keywords = [
+{RMSD = {
+ASL = "$receptor_ASL"
+Frame = 0
+Type = "Protein"
+}
+}
+]
+st2
+        $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD_timeseries.st2 analyse_RMSD_timeseries.st2
+        $Desmond/run st2csv.py ${current_cms%%-out.cms}_RMSD_timeseries.st2 ${job_name}_RMSD.csv
+        if [ -f $(dirname $(readlink -f $0))/rmsd_plot.py ];then
+            if [ -n "${simulation_time}" ];then
+                python $(dirname $(readlink -f $0))/rmsd_plot.py -f "${job_name}_RMSD.csv" -o "${job_name}_RMSD" -t "RMSD (All Atoms)" --total-time ${simulation_time}
+            else
+                python $(dirname $(readlink -f $0))/rmsd_plot.py -f "${job_name}_RMSD.csv" -o "${job_name}_RMSD" -t "RMSD (All Atoms)"
+            fi
+        else
+            echo "WARNING: rmsd_plot.py not found, skipping plot generation."
+        fi
+    elif [ ${running_mode} == "RMSD_CA" ];then
+cat << st2 > analyse_RMSD_CA.st2
+Keywords = [
+{RMSD = {
+ASL = "(${receptor_ASL}) and a.pt CA"
+Frame = 0
+Type = "Protein"
+}
+}
+]
+st2
+        $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD_CA.st2 analyse_RMSD_CA.st2
+        $Desmond/run st2csv.py ${current_cms%%-out.cms}_RMSD_CA.st2 ${job_name}_RMSD_CA.csv
+        if [ -f $(dirname $(readlink -f $0))/rmsd_plot.py ];then
+            if [ -n "${simulation_time}" ];then
+                python $(dirname $(readlink -f $0))/rmsd_plot.py -f "${job_name}_RMSD_CA.csv" -o "${job_name}_RMSD_CA" -t "RMSD (C-alpha)" --total-time ${simulation_time}
+            else
+                python $(dirname $(readlink -f $0))/rmsd_plot.py -f "${job_name}_RMSD_CA.csv" -o "${job_name}_RMSD_CA" -t "RMSD (C-alpha)"
+            fi
+        else
+            echo "WARNING: rmsd_plot.py not found, skipping plot generation."
+        fi
+    elif [ ${running_mode} == "RMSD_Backbone" ];then
+cat << st2 > analyse_RMSD_Backbone.st2
+Keywords = [
+{RMSD = {
+ASL = "(${receptor_ASL}) and backbone"
+Frame = 0
+Type = "Protein"
+}
+}
+]
+st2
+        $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_RMSD_Backbone.st2 analyse_RMSD_Backbone.st2
+        $Desmond/run st2csv.py ${current_cms%%-out.cms}_RMSD_Backbone.st2 ${job_name}_RMSD_Backbone.csv
+        if [ -f $(dirname $(readlink -f $0))/rmsd_plot.py ];then
+            if [ -n "${simulation_time}" ];then
+                python $(dirname $(readlink -f $0))/rmsd_plot.py -f "${job_name}_RMSD_Backbone.csv" -o "${job_name}_RMSD_Backbone" -t "RMSD (Backbone)" --total-time ${simulation_time}
+            else
+                python $(dirname $(readlink -f $0))/rmsd_plot.py -f "${job_name}_RMSD_Backbone.csv" -o "${job_name}_RMSD_Backbone" -t "RMSD (Backbone)"
+            fi
+        else
+            echo "WARNING: rmsd_plot.py not found, skipping plot generation."
+        fi
+    elif [ ${running_mode} == "LigandRMSD" ];then
+cat << st2 > analyse_LigandRMSD.st2
+Keywords = [
+{RMSD = {
+ASL = "$ligand_ASL"
+FitBy = "$receptor_ASL"
+Frame = 0
+Type = "Ligand"
+}
+}
+]
+st2
+        $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_LigandRMSD.st2 analyse_LigandRMSD.st2
+        $Desmond/run st2csv.py ${current_cms%%-out.cms}_LigandRMSD.st2 ${job_name}_LigandRMSD.csv
+        if [ -f $(dirname $(readlink -f $0))/rmsd_plot.py ];then
+            if [ -n "${simulation_time}" ];then
+                python $(dirname $(readlink -f $0))/rmsd_plot.py -f "${job_name}_LigandRMSD.csv" -o "${job_name}_LigandRMSD" -t "RMSD (Ligand)" --total-time ${simulation_time}
+            else
+                python $(dirname $(readlink -f $0))/rmsd_plot.py -f "${job_name}_LigandRMSD.csv" -o "${job_name}_LigandRMSD" -t "RMSD (Ligand)"
+            fi
+        else
+            echo "WARNING: rmsd_plot.py not found, skipping plot generation."
+        fi
     elif [ ${running_mode} == "RadiusGyration" ]; then
         cat << st2 > analyse_Rg.st2
 Keywords = [
@@ -357,6 +457,13 @@ ASL2 = "${running_mode_array[2]}"
 st2
         $Desmond/run analyze_simulation.py ${current_cms} ${current_trajectory} ${current_cms%%-out.cms}_Hbond.st2 analyse_Hbond.st2
         $Desmond/run st2csv.py ${current_cms%%-out.cms}_Hbond.st2 ${current_cms%%-out.cms}_Hbond.csv
+    elif [ "$running_mode" == "HbondAnalysis" ]; then
+        if [ -f $(dirname $(readlink -f $0))/hbond_analysis.py ];then
+            $Desmond/run $(dirname $(readlink -f $0))/hbond_analysis.py "${current_cms}" "${current_trajectory}" "${running_mode_array[1]}" "${running_mode_array[2]}" "${job_name}_HbondAnalysis"
+        else
+            echo "ERROR: hbond_analysis.py not found, please download it from https://github.com/Wang-Lin-boop/AutoMD!"
+            exit
+        fi
     elif [ "$running_mode" == "CustomFEL" ]; then
         export FEL_mode=${running_mode_array[1]}
         if [ "$FEL_mode" == "PCA" ]; then

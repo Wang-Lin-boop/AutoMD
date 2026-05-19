@@ -1,0 +1,20 @@
+# Requirements file for AutoMD Python scripts
+# Usage: pip install -r requirements.txt
+#
+# Note: Schrodinger packages (schrodinger.*) are NOT included here as they
+# require a licensed Schrodinger Suite installation. Scripts using Schrodinger
+# API should be run with: $SCHRODINGER/run script.py
+#
+# This file provides dependencies for standalone scripts and plotting.
+
+# Numerical computing
+numpy>=1.20
+
+# Scientific computing
+scipy>=1.7
+
+# Plotting and visualization
+matplotlib>=3.5
+
+# Optional but recommended for easier CSV handling
+pandas>=1.3

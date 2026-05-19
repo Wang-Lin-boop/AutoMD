@@ -232,6 +232,11 @@ _The analysis pipeline for a task is specified using the -M parameter. For examp
                 MMGBSA: run MM-GBSA on the trajectory, require "-L" option.
                 BFactor: calculate atom B-factors from trajectory (receptor and ligand).
                 RMSF: calculate RMSF from trajectory (receptor).
+                RMSD: calculate RMSD time-series for all protein atoms, outputs CSV and plot.
+                RMSD_CA: calculate RMSD time-series for C-alpha atoms only, outputs CSV and plot.
+                RMSD_Backbone: calculate RMSD time-series for backbone atoms only, outputs CSV and plot.
+                LigandRMSD: calculate ligand RMSD (fitted to receptor) time-series, outputs CSV and plot.
+                RadiusGyration: calculate the radius of gyration from trajectory (receptor).
                 DistanceMonitor_<res1_asl>_<res2_asl>_<mode>:
                     monitor the distance between two residues in the trajectory,
                     the mode can be min or center for minimum distance or center of mass distance.
@@ -241,6 +246,9 @@ _The analysis pipeline for a task is specified using the -M parameter. For examp
                     monitor the dihedral angle between four atoms in the trajectory.
                 HbondMonitor_<ASL1>_<ASL2>:
                     monitor the hydrogen bond between two ASLs in the trajectory.
+                HbondAnalysis_<ASL1>_<ASL2>:
+                    advanced hydrogen bond analysis between two ASLs including:
+                    occupancy percentage, lifetime statistics, and distance/angle distributions.
                 CustomFEL_<mode>:
                     analyze the free energy landscape (FEL),the mode can be PCA, "RMSD:ASL1_RG:ASL2","RMSD:ASL1_DIS:ASL2,ASL3_dismode",
                     "RG:ASL1_DIS:ASL2,ASL3_dismode", "DIS:ASL1,ASL2_DIS:ASL3,ASL4_dismode", "RMSD:ASL1_RMSD:ASL2"
@@ -290,6 +298,7 @@ _In analytical analysis, the removal of solvents may greatly accelerates the spe
   -C <ASL>      Set a ASL to clean the subsystem from trajectory, such as -C "not solvent".
   -P            Parch waters far away from the component 2.
   -w <int>      Number of retained water molecules for parch (-P) stage. <200>
+  -S <float>    Total simulation time in nanoseconds (ns) for RMSD plots x-axis.
 ```
 
 ### Disclaimer
