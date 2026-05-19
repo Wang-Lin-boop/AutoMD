@@ -1,0 +1,30 @@
+# Conda environment file for AutoMD Python scripts
+# Usage: conda env create -f environment.yml
+# 
+# Note: Schrodinger packages (schrodinger.*) are NOT included here as they
+# require a licensed Schrodinger Suite installation. Scripts using Schrodinger
+# API should be run with: $SCHRODINGER/run script.py
+#
+# This environment provides dependencies for standalone scripts and plotting.
+
+name: automd
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Core Python
+  - python>=3.8
+  
+  # Numerical computing
+  - numpy>=1.20
+  
+  # Scientific computing
+  - scipy>=1.7
+  
+  # Plotting and visualization
+  - matplotlib>=3.5
+  
+  # Optional but recommended
+  - pandas>=1.3          # For easier CSV handling
